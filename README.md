@@ -41,7 +41,7 @@ The project is divided into three sub-teams:
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/your-username/your-repo-name.git
+   git clone git@github.com:ima-mervin/CSCI3832_FinalProject.git
    ```
 
 2. **Install Required Libraries:**
