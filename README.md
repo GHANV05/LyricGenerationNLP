@@ -28,6 +28,7 @@ This project aims to implement Natural Language Processing (NLP) models to class
 - Compare the performance of advanced models with basic models.
 
 ## Project Structure
+```bash
 
 project/
 ├── config/
@@ -43,6 +44,7 @@ project/
 ├── .env.example          # Environment variables example structure
 ├── .gitignore            
 └── README.md
+```
 
 ## Getting Started
 
