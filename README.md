@@ -43,50 +43,48 @@ The project is divided into three sub-teams:
    ```bash
    git clone git@github.com:ima-mervin/CSCI3832_FinalProject.git
    ```
+2. **Navigate to your project directory:**
+   ```bash
+   cd path/to/CSCI3832_FinalProject
+   ```
+3. **Create a virtual environment (this keeps your project dependencies isolated):**
+   ```bash
+   python -m venv venv
+   ```
+4. **Activate the virtual environment:**
 
-2. **Install Required Libraries:**
-   - See `requirements.txt` for a list of dependencies.
+   *On Windows:*
+      ```bash
+      venv\Scripts\activate
+      ```
+   *On macOS/Linux:*
+      ```bash
+      source venv/bin/activate
+      ```
+6. **Install the required packages:**
    ```bash
    pip install -r requirements.txt
    ```
+7. **Running Scripts:**
+   
+  *Make sure your virtual environment is activated (you should see (venv) at the beginning of your command line)*
+  
+ *The script can be run in several different ways depending on what you want to accomplish, here are examples for a few data collection tasks you can run:*
+ 
+ 
+   
+   
 
-3. **Set Up Spotify API:**
-   - Register your application on the Spotify Developer Dashboard.
-   - Replace placeholders in `spotify_api_setup.py` with your client ID and client secret.
 
-4. **Run Scripts:**
-   - Follow instructions in each script for data preprocessing, model training, and evaluation.
+
+
 
 ## Acknowledgments
 
 - This project uses the Spotify API for data collection.
 - Team members: Ima, Mia Ray, Mariana, Gavin Hanville, Chloe.
 
-## Running the Script
 
-# Navigate to your project directory
-```bash
-cd path/to/CSCI3832_FinalProject
-```
-
-# Create a virtual environment (this keeps your project dependencies isolated)
-```bash
-python -m venv venv
-```
-# Activate the virtual environment
-# On Windows:
-```bash
-venv\Scripts\activate
-```
-# On macOS/Linux:
-```bash
-source venv/bin/activate
-```
-# Install the required packages
-```bash
-pip install -r requirements.txt
-```
-# Make sure your virtual environment is activated (you should see (venv) at the beginning of your command line)
 
 # To search for playlists and collect data:
 ```bash
