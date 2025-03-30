@@ -116,8 +116,12 @@ class SpotifyDataCollector:
     
     def search_and_collect(self, query, search_type='playlist', limit=5):
         """Search for playlists and collect their data"""
-        results = self.sp.search(q=query, type=search_type, limit=limit)
-        items = results[f"{search_type}s"]['items']
+        try:
+            results = self.sp.search(q=query, type=search_type, limit=limit)
+            items = results.get(f"{search_type}s", {}).get('items', [])
+        except Exception as e:
+            print(f"Error searching for {search_type}s: {str(e)}")
+            return None
         
         if not items:
             print(f"No {search_type}s found for query: {query}")
@@ -125,13 +129,28 @@ class SpotifyDataCollector:
             
         print(f"\nFound {len(items)} {search_type}s matching '{query}':")
         for i, item in enumerate(items):
-            print(f"{i+1}. {item['name']} by {item['owner']['display_name']} - {item['id']}")
+            # Validate item and its properties before accessing them
+            if item is None:
+                print(f"{i+1}. [Invalid playlist item]")
+                continue
+                
+            try:
+                name = item.get('name', '[No name]')
+                owner_dict = item.get('owner', {})
+                if owner_dict is None:
+                    owner_dict = {}
+                owner_display_name = owner_dict.get('display_name', '[Unknown]')
+                item_id = item.get('id', '[No ID]')
+                print(f"{i+1}. {name} by {owner_display_name} - {item_id}")
+            except Exception as e:
+                print(f"{i+1}. [Error displaying playlist: {str(e)}]")
         
-        # Return the first result's ID
+        # Return the first valid result's ID
         if items:
-            return items[0]['id']
+            for item in items:
+                if item is not None and isinstance(item, dict) and 'id' in item:
+                    return item['id']
         return None
-        
     def get_recommendations(self, seed_tracks=None, seed_artists=None, seed_genres=None, limit=50):
         """Get recommended tracks based on seeds"""
         recommendations = self.sp.recommendations(

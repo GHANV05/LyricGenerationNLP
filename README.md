@@ -61,3 +61,39 @@ The project is divided into three sub-teams:
 
 - This project uses the Spotify API for data collection.
 - Team members: Ima, Mia Ray, Mariana, Gavin Hanville, Chloe.
+
+## Running the Script
+
+# Navigate to your project directory
+```bash
+cd path/to/CSCI3832_FinalProject
+```
+
+# Create a virtual environment (this keeps your project dependencies isolated)
+```bash
+python -m venv venv
+```
+# Activate the virtual environment
+# On Windows:
+```bash
+venv\Scripts\activate
+```
+# On macOS/Linux:
+```bash
+source venv/bin/activate
+```
+# Install the required packages
+```bash
+pip install -r requirements.txt
+```
+# Make sure your virtual environment is activated (you should see (venv) at the beginning of your command line)
+
+# To search for playlists and collect data:
+```bash
+python -m src.collector --search "electronic dance music"
+```
+
+# Or to use a specific playlist ID:
+```bash
+python -m src.collector --playlist 37i9dQZF1DXcBWIGoYBM5M
+```
