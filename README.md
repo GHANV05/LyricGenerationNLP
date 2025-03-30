@@ -84,10 +84,3 @@ The project is divided into three sub-teams:
 
 - This project uses the Spotify API for metadata collection and Genius API to scrape lyrics.
 - Team members: Ima, Mia Ray, Mariana, Gavin Hanville, Chloe.
-
-
-# To search for playlists and collect data:
-```python -m src.collector --search "electronic dance music"```
-
-# Or to use a specific playlist ID:
-```python -m src.collector --playlist 37i9dQZF1DXcBWIGoYBM5M```
