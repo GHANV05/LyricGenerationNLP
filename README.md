@@ -74,11 +74,11 @@ project/
    # Default output file
    DEFAULT_OUTPUT_FILE = "your_path_to_data/data_file_name.csv"
    ```
-3. **Create a virtual environment (this keeps your project dependencies isolated):**
+5. **Create a virtual environment (this keeps your project dependencies isolated):**
    ```bash
    python -m venv venv
    ```
-4. **Activate the virtual environment:**
+6. **Activate the virtual environment:**
 
    *On Windows:*
       ```bash
@@ -88,11 +88,11 @@ project/
       ```bash
       source venv/bin/activate
       ```
-6. **Install the required packages:**
+7. **Install the required packages:**
    ```bash
    pip install -r requirements.txt
    ```
-7. **Running Scripts:**
+8. **Running Scripts:**
    
   *Make sure your virtual environment is activated (you should see (venv) at the beginning of your command line)*
   
@@ -123,7 +123,7 @@ project/
       
    ```
 
-8. **Viewing the Data:**
+9. **Viewing the Data:**
   Once the script has been successfully run, the data will be loaded into ```your_path/CSCI3832_FinalProject/data/spotify_dataset.csv``` or a custom path if that has been specified.
 
 ## Feature Extraction
