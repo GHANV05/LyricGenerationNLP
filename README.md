@@ -56,6 +56,24 @@ project/
    ```bash
    cd path/to/CSCI3832_FinalProject
    ```
+3. **Environment Setup:**
+   Create a ```.env``` file in the project root:
+   ```bash touch.env```
+4. **Setting up API credentials:**
+   You can follow the instructions in ```.env.example``` to make your own ```.env```
+   ```bash
+   # Spotify API Credentials
+   # Create these at https://developer.spotify.com/dashboard/
+   SPOTIFY_CLIENT_ID=your_client_id_here
+   SPOTIFY_CLIENT_SECRET=your_client_secret_here
+   
+   # Genius API Credentials
+   # Create this at https://genius.com/api-clients/new
+   GENIUS_ACCESS_TOKEN =your_genius_access_token
+   
+   # Default output file
+   DEFAULT_OUTPUT_FILE = "your_path_to_data/data_file_name.csv"
+   ```
 3. **Create a virtual environment (this keeps your project dependencies isolated):**
    ```bash
    python -m venv venv
