@@ -70,7 +70,15 @@ The project is divided into three sub-teams:
   
  *The script can be run in several different ways depending on what you want to accomplish, here are examples for a few data collection tasks you can run:*
 
- ### To collect data from a specific playlist :###
+- To collect data from a specific playlist: 
+- To search for a playlist and collect data:
+- To collect genre-specific data:
+- To collect sentiment-specific data:
+- To limit the number of tracks collected:
+- To specify custom output file:
+
+8. **Viewing the Data:**
+  Once the script has been successfully run, the data will be loaded into ```CSCI3832_FinalProject/data/spotify_dataset.csv```
  
  
    
@@ -88,11 +96,7 @@ The project is divided into three sub-teams:
 
 
 # To search for playlists and collect data:
-```bash
-python -m src.collector --search "electronic dance music"
-```
+```python -m src.collector --search "electronic dance music"```
 
 # Or to use a specific playlist ID:
-```bash
-python -m src.collector --playlist 37i9dQZF1DXcBWIGoYBM5M
-```
+```python -m src.collector --playlist 37i9dQZF1DXcBWIGoYBM5M```
