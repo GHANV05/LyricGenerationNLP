@@ -36,6 +36,8 @@ The project is divided into three sub-teams:
 - Address challenges such as dataset bias and computational efficiency.
 - Compare the performance of advanced models with basic models.
 
+## File Structure
+
 ## Getting Started
 
 1. **Clone the Repository:**
