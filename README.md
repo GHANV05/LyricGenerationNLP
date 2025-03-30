@@ -38,7 +38,7 @@ The complete data collection process follows these steps:
 4. Scrape and process lyrics
 5. Combine all data into a structured dataset
 
-Note: Due to API rate limits, the collection process includes small delays between requests to avoid being blocked by either service.
+***Note:*** Due to API rate limits, the collection process includes small delays between requests to avoid being blocked by either service.
 
 ## Project Goals
 
