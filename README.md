@@ -4,7 +4,7 @@
 
 ## Project Overview
 
-This project aims to implement Natural Language Processing (NLP) models to classify songs into their respective genres and sentiments. We compare the accuracy of different models to determine which performs best and analyze the relationships between sentiment and genre. The project leverages the Spotify API to extract lyrics, metadata, and audio features.
+This project aims to implement Natural Language Processing (NLP) models to classify songs into their respective genres and sentiments. We compare the accuracy of different models to determine which performs best and analyze the relationships between sentiment and genre. The project leverages the Spotify API and Genius API to extract lyrics, metadata, and audio features.
 
 ## Key Tasks
 
@@ -27,9 +27,8 @@ The project is divided into three sub-teams:
 
 ## Dataset
 
-- **Source:** Spotify API.
-- **Data Types:** Lyrics, metadata, and audio features.
-- **Rate Limiting:** The Spotify API has a rate limit of approximately 180 calls per 30 seconds. We implement a backoff request system to manage this limit.
+- **Source:** Spotify API and Genius API
+- **Data Types:** Lyrics and Metadata
 
 ## Project Goals
 
@@ -70,6 +69,8 @@ The project is divided into three sub-teams:
   *Make sure your virtual environment is activated (you should see (venv) at the beginning of your command line)*
   
  *The script can be run in several different ways depending on what you want to accomplish, here are examples for a few data collection tasks you can run:*
+
+ ### To collect data from a specific playlist :###
  
  
    
