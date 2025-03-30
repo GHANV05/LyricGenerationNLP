@@ -88,13 +88,38 @@ project/
 - To specify custom output file:```python -m src.collector --search "pop hits" --output "my_data.csv"```
 
 8. **Viewing the Data:**
-  Once the script has been successfully run, the data will be loaded into ```your_path/CSCI3832_FinalProject/data/spotify_dataset.csv```
+  Once the script has been successfully run, the data will be loaded into ```your_path/CSCI3832_FinalProject/data/spotify_dataset.csv``` or a custom path if that has been specified.
 
 ## Feature Extraction
 
-The collector extracts the following data for each track :
-- 
+The collector extracts the following data for each track:
+```bash
+- track_id
+- track_name
+- track_number
+- disc_number
+- duration_ms
+- explicit
+- popularity
+- isrc
+- preview_url
+- track_url
+- playlist_id
+- playlist_name
+- added_at
+- added_by
+- primary_artist
+- all_artists
+- artist_id
+- artist_genre
+- album_name
+- album_id
+- album_type
+- album_release_date
+- album_image_url
+- lyrics
 
+```
 ## Team Structure
 
 The project is divided into three sub-teams:
