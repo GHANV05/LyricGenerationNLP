@@ -4,7 +4,7 @@
 
 ## Project Overview
 
-This project aims to implement Natural Language Processing (NLP) models to classify songs into their respective genres and sentiments. We compare the accuracy of different models to determine which performs best and analyze the relationships between sentiment and genre. The project leverages the Spotify API and Genius API to extract lyrics, metadata, and audio features.
+This project aims to implement Natural Language Processing (NLP) models to classify songs into their respective genres and sentiments. We compare the accuracy of different models to determine which performs best and analyze the relationships between sentiment and genre. The project leverages the Spotify API and Genius API to extract lyrics and metadata.
 
 ## Key Tasks
 
@@ -80,19 +80,10 @@ The project is divided into three sub-teams:
 8. **Viewing the Data:**
   Once the script has been successfully run, the data will be loaded into ```your_path/CSCI3832_FinalProject/data/spotify_dataset.csv```
  
- 
-   
-   
-
-
-
-
-
 ## Acknowledgments
 
-- This project uses the Spotify API for data collection.
+- This project uses the Spotify API for metadata collection and Genius API to scrape lyrics.
 - Team members: Ima, Mia Ray, Mariana, Gavin Hanville, Chloe.
-
 
 
 # To search for playlists and collect data:
