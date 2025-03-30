@@ -80,17 +80,30 @@ project/
   
  *The script can be run in several different ways depending on what you want to accomplish, here are examples for a few data collection tasks you can run:*
 
--**By Playlist**: To collect data from a specific playlist:```python -m src.collector --playlist "spotify_playlist"```
+   -**By Playlist**: To collect data from a specific playlist:```python -m src.collector --playlist "spotify_playlist"```
+   
+   -**By Search**: Search for playlists matching a term and collect data from the top result:```python -m src.collector --search "pop hits"```
+   
+   -**By Genre**: Collect recommended tracks based on specific genres:```python -m src.collector --genres "rock,pop,hip hop,jazz,country"```
+   
+   -**By Sentiment**:Collect recommended tracks based on specific genres:```python -m src.collector --sentiments "happy,sad,energetic,relaxed,angry"```
+   
+   -**Additional Options**: 
+      - Limit the number of tracks::```--limit 50```
+      - Specify output location: ```--output "data/custom_filename.csv"```
 
--**By Search**: Search for playlists matching a term and collect data from the top result:```python -m src.collector --search "pop hits"```
-
--**By Genre**: Collect recommended tracks based on specific genres:```python -m src.collector --genres "rock,pop,hip hop,jazz,country"```
-
--**By Sentiment**:Collect recommended tracks based on specific genres:```python -m src.collector --sentiments "happy,sad,energetic,relaxed,angry"```
-
--**Additional Options**: 
-   - Limit the number of tracks::```--limit 50```
-   - Specify output location: ```--output "data/custom_filename.csv"```
+   ```bash
+      #Example Commands
+      # Collect from a specific playlist
+      python -m src.collector --playlist "37i9dQZF1DXcBWIGoYBM5M"
+      
+      # Search for an indie playlist and limit to 30 tracks
+      python -m src.collector --search "indie essentials" --limit 30
+      
+      # Get recommendations for dance music with custom output file
+      python -m src.collector --genres "dance,electronic" --output "data/dance_tracks.csv"
+      
+   ```
 
 8. **Viewing the Data:**
   Once the script has been successfully run, the data will be loaded into ```your_path/CSCI3832_FinalProject/data/spotify_dataset.csv``` or a custom path if that has been specified.
