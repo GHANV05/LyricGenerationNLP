@@ -16,15 +16,6 @@ This project aims to implement Natural Language Processing (NLP) models to class
    - Evaluate the performance of different NLP models (Encoder/Decoder, BERT, n-gram, LSTM).
    - Compare model accuracy and efficiency.
 
-## Team Structure
-
-The project is divided into three sub-teams:
-
-- **Data Preprocessing and Classification:** Ima Mervin
-- **Language Modeling Approaches:**
-  - **Team Finetuning BERT:** Mia Ray and Mariana.
-  - **Team Encoder/Decoder:** Gavin Hanville and Chloe.
-
 ## Dataset
 
 - **Source:** Spotify API and Genius API
@@ -79,6 +70,15 @@ The project is divided into three sub-teams:
 
 8. **Viewing the Data:**
   Once the script has been successfully run, the data will be loaded into ```your_path/CSCI3832_FinalProject/data/spotify_dataset.csv```
+
+## Team Structure
+
+The project is divided into three sub-teams:
+
+- **Data Preprocessing and Classification:** Ima Mervin
+- **Language Modeling Approaches:**
+  - **Team Finetuning BERT:** Mia Ray and Mariana.
+  - **Team Encoder/Decoder:** Gavin Hanville and Chloe.
  
 ## Acknowledgments
 
