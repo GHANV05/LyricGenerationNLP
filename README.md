@@ -80,12 +80,13 @@ project/
   
  *The script can be run in several different ways depending on what you want to accomplish, here are examples for a few data collection tasks you can run:*
 
-- To collect data from a specific playlist:```python -m src.collector --playlist "spotify_playlist"```
-- To search for a playlist and collect data:```python -m src.collector --search "pop hits"```
-- To collect genre-specific data:```python -m src.collector --genres "rock,pop,hip hop,jazz,country"```
-- To collect sentiment-specific data:```python -m src.collector --sentiments "happy,sad,energetic,relaxed,angry"```
-- To limit the number of tracks collected:```python -m src.collector --search "pop hits" --limit 50```
-- To specify custom output file:```python -m src.collector --search "pop hits" --output "my_data.csv"```
+-**By Playlist**: To collect data from a specific playlist:```python -m src.collector --playlist "spotify_playlist"```
+-**By Search**: Search for playlists matching a term and collect data from the top result:```python -m src.collector --search "pop hits"```
+-**By Genre**: Collect recommended tracks based on specific genres:```python -m src.collector --genres "rock,pop,hip hop,jazz,country"```
+-**By Sentiment**:Collect recommended tracks based on specific genres:```python -m src.collector --sentiments "happy,sad,energetic,relaxed,angry"```
+-**Additional Options**: 
+   - Limit the number of tracks::```--limit 50```
+   - Specify output location: ```--output "data/custom_filename.csv"```
 
 8. **Viewing the Data:**
   Once the script has been successfully run, the data will be loaded into ```your_path/CSCI3832_FinalProject/data/spotify_dataset.csv``` or a custom path if that has been specified.
