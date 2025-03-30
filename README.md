@@ -40,6 +40,25 @@ The complete data collection process follows these steps:
 
 ***Note:*** Due to API rate limits, the collection process includes small delays between requests to avoid being blocked by either service.
 
+## Technologies and Libraries
+
+### Data Collection
+- **Spotipy**: Python library for the Spotify Web API
+  - Handles authentication via SpotifyClientCredentials
+  - Manages API requests for track metadata and audio features
+  
+- **BeautifulSoup4**: For web scraping lyrics from Genius pages
+
+- **Pandas**: Used for data manipulation and CSV export
+
+- **Requests**: Handles HTTP requests to the Genius API
+
+- **Argparse**: Provides command-line argument parsing for flexible data collection options
+
+- **Time**: Implements rate limiting to avoid API request throttling
+
+- **OS/Sys**: Manages file paths and environment variables
+
 ## Project Goals
 
 - Provide insights into how NLP can enhance music-related applications.
