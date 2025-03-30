@@ -167,33 +167,36 @@ project/
 ## Feature Extraction
 
 The collector extracts the following data for each track:
-```bash
-- track_id
-- track_name
-- track_number
-- disc_number
-- duration_ms
-- explicit
-- popularity
-- isrc
-- preview_url
-- track_url
-- playlist_id
-- playlist_name
-- added_at
-- added_by
-- primary_artist
-- all_artists
-- artist_id
-- artist_genre
-- album_name
-- album_id
-- album_type
-- album_release_date
-- album_image_url
-- lyrics
+## Feature Extraction
 
-```
+The collector extracts the following data for each track:
+
+| Column Name | Description |
+|-------------|-------------|
+| track_id | Spotify unique identifier for the track |
+| track_name | Title of the song |
+| track_number | Position of the track on its album |
+| disc_number | Disc number for multi-disc albums |
+| duration_ms | Duration of the track in milliseconds |
+| explicit | Flag indicating explicit content |
+| popularity | Spotify popularity score |
+| isrc | International Standard Recording Code |
+| preview_url | URL to a 30-second preview of the track |
+| track_url | Spotify URL for the track |
+| playlist_id | ID of the source playlist |
+| playlist_name | Name of the source playlist |
+| added_at | Timestamp when track was added to playlist |
+| added_by | User who added the track to playlist |
+| primary_artist | Main artist of the track |
+| all_artists | List of all artists featured on the track |
+| artist_id | Spotify ID for the primary artist |
+| artist_genre | Genres associated with the artist |
+| album_name | Name of the album |
+| album_id | Spotify ID for the album |
+| album_type | Type of album (single, album, compilation) |
+| album_release_date | Release date of the album |
+| album_image_url | URL to the album cover art |
+| lyrics | Full lyrics of the track |
 ## Team Structure
 
 The project is divided into three sub-teams:
