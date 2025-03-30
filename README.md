@@ -203,10 +203,10 @@ The project is divided into three sub-teams:
 
 - **Data Preprocessing and Classification:** Ima Mervin
 - **Language Modeling Approaches:**
-  - **Team Finetuning BERT:** Mia Ray and Mariana.
-  - **Team Encoder/Decoder:** Gavin Hanville and Chloe.
+  - **Team Finetuning BERT:** Mia Ray and Mariana Vadas-Arendt.
+  - **Team Encoder/Decoder:** Gavin Hanville and Chloe Circenis.
  
 ## Acknowledgments
 
 - This project uses the Spotify API for metadata collection and Genius API to scrape lyrics.
-- Team members: Ima, Mia Ray, Mariana, Gavin Hanville, Chloe.
+- Team members: Ima Mervin, Mia Ray, Mariana Vadas-Arendt, Gavin Hanville, Chloe Circenis.
