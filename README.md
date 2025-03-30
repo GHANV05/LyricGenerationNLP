@@ -16,10 +16,29 @@ This project aims to implement Natural Language Processing (NLP) models to class
    - Evaluate the performance of different NLP models (Encoder/Decoder, BERT, n-gram, LSTM).
    - Compare model accuracy and efficiency.
 
-## Dataset
+## Data Collection Process
 
-- **Source:** Spotify API and Genius API
-- **Data Types:** Lyrics and Metadata
+### Spotify API Integration
+This project collects song metadata and audio features using the Spotify Web API:
+
+**Track Metadata Collection**: We use the Spotify API to collect basic information about tracks including name, artists, album, release date, and popularity.
+
+### Genius API Integration
+
+**Automatic Matching**: The system attempts to match Spotify tracks with their corresponding entries on Genius using artist name and track title.
+
+**Lyrics Scraping**: Once a match is found, the lyrics are scraped from the Genius page using web scraping techniques with BeautifulSoup.
+
+### Data Pipeline
+The complete data collection process follows these steps:
+
+1. Collect track IDs through playlists, searches, or genre recommendations
+2. Fetch track metadata and audio features from Spotify
+3. Match tracks to Genius entries
+4. Scrape and process lyrics
+5. Combine all data into a structured dataset
+
+Note: Due to API rate limits, the collection process includes small delays between requests to avoid being blocked by either service.
 
 ## Project Goals
 
