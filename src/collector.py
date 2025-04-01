@@ -6,21 +6,20 @@ import os
 import sys
 import argparse
 
-# Add the parent directory to sys.path to import config
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config.config import SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, DEFAULT_OUTPUT_FILE
 
 class SpotifyDataCollector:
     def __init__(self, client_id=None, client_secret=None):
         """Initialize Spotify client with credentials"""
-        # Use provided credentials or fall back to config
+        # use provided credentials or fall back to config
         self.client_id = client_id or SPOTIFY_CLIENT_ID
         self.client_secret = client_secret or SPOTIFY_CLIENT_SECRET
         
         if not self.client_id or not self.client_secret:
             raise ValueError("Missing Spotify API credentials. Set them in .env file or provide as arguments.")
         
-        # Set up Spotify client
+        # set up Spotify client
         client_credentials_manager = SpotifyClientCredentials(
             client_id=self.client_id, 
             client_secret=self.client_secret
@@ -48,12 +47,12 @@ class SpotifyDataCollector:
     def get_track_data(self, track_item):
         """Extract relevant track data"""
         track = track_item['track']
-        if not track:  # Skip None tracks
+        if not track:  # skip None tracks
             return None
         
         track_id = track['id']
         
-        # Basic track info
+        # basic track info
         track_data = {
             'id': track_id,
             'name': track['name'],
@@ -66,7 +65,7 @@ class SpotifyDataCollector:
             'artist_ids': ', '.join([artist['id'] for artist in track['artists']])
         }
         
-        # Get audio features
+        # get audio features #doesn't work yet (don't need it anyways)
         features = self.get_track_features(track_id)
         if features:
             track_data.update({
@@ -99,15 +98,15 @@ class SpotifyDataCollector:
             if track_data:
                 all_track_data.append(track_data)
             
-            # Add a small delay to avoid hitting rate limits
+            #small delay to avoid hitting rate limits
             if i % 50 == 0 and i > 0:
                 print(f"Processed {i} tracks...")
                 time.sleep(1)
         
-        # Create DataFrame and save to CSV
+        # create dataframe to save to cdv
         df = pd.DataFrame(all_track_data)
         
-        # Ensure directory exists
+        # ensure directory exists
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         
         df.to_csv(output_file, index=False)
@@ -145,7 +144,7 @@ class SpotifyDataCollector:
             except Exception as e:
                 print(f"{i+1}. [Error displaying playlist: {str(e)}]")
         
-        # Return the first valid result's ID
+        # eeturn the first valid result's ID
         if items:
             for item in items:
                 if item is not None and isinstance(item, dict) and 'id' in item:
@@ -194,7 +193,7 @@ class SpotifyDataCollector:
             
             all_track_data.append(track_data)
             
-            # Add a small delay to avoid hitting rate limits
+            # add a small delay to avoid hitting rate limits
             if i % 50 == 0 and i > 0:
                 time.sleep(1)
                 
@@ -208,17 +207,17 @@ def main():
     
     args = parser.parse_args()
     
-    # Initialize collector
+    # initialize collector
     collector = SpotifyDataCollector()
     
     playlist_id = args.playlist
     
-    # If no playlist ID provided, search for one
+    # if no playlist ID provided, search for one
     if not playlist_id and args.search:
         print(f"Searching for playlists matching: {args.search}")
         playlist_id = collector.search_and_collect(args.search)
     
-    # If we have a playlist ID (either provided or found), collect data
+    # if we have a playlist ID (either provided or found), collect data
     if playlist_id:
         df = collector.collect_playlist_data(playlist_id, args.output)
         print(f"Dataset shape: {df.shape}")
