@@ -114,17 +114,17 @@ project/
    ```
 5. **Create a virtual environment (this keeps your project dependencies isolated):**
    ```bash
-   python -m venv venv
+   python -m venv <name_of_environment>
    ```
 6. **Activate the virtual environment:**
 
    *On Windows:*
       ```bash
-      venv\Scripts\activate
+      <name_of_environment>\Scripts\activate
       ```
    *On macOS/Linux:*
       ```bash
-      source venv/bin/activate
+      source <name_of_environment>/bin/activate
       ```
 7. **Install the required packages:**
    ```bash
