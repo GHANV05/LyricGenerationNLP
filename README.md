@@ -4,12 +4,11 @@
 
 ## Project Overview
 
-This project aims to implement Natural Language Processing (NLP) models to classify songs into their respective genres and sentiments. We compare the accuracy of different models to determine which performs best and analyze the relationships between sentiment and genre. The project leverages the Spotify API and Genius API to extract lyrics and metadata.
+This project aims to implement Natural Language Processing (NLP) models to classify songs into their respective genres and generate new lyrics based on genres. We compare the accuracy of different models to determine which performs best and analyze the relationships between lyrics and genre. The project leverages the Spotify API and Genius API to extract lyrics and metadata.
 
 ## Key Tasks
 
 1. **Text Classification:**
-   - Classify song lyrics by sentiment (e.g., happy, sad, energetic).
    - Classify song lyrics by genre (e.g., rock, pop, rap).
 
 2. **Model Comparison:**
