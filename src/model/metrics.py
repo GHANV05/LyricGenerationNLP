@@ -30,8 +30,11 @@ def average_line_length(lyrics):
     Returns: 
         float: Average number of words per non-empty line, 0 otherwise
     """
+    # array of lines, remove end and start whitespace, break on endline char
     lines = lyrics.strip().split("\n")
+    # length of line if line is not empty
     word_counts = [len(line.split()) for line in lines if line.strip()]
+    # Sum of word counts over count of lines
     return sum(word_counts) / len(word_counts) if word_counts else 0
 
 
