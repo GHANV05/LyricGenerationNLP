@@ -4,3 +4,4 @@ python-dotenv==1.0.0
 transformers==4.51.0
 torch==2.6.0
 polyglot==16.7.4
+pyicu==2.15.1
