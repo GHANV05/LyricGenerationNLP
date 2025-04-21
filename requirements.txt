@@ -1,5 +1,5 @@
 spotipy==2.23.0
-pandas==2.0.3
+pandas==2.2.2
 python-dotenv==1.0.0
 transformers==4.51.0
 torch==2.6.0
