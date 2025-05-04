@@ -152,7 +152,7 @@ def collate_fn(batch):
     return inputs, targets, genres_tensor
 
 
-# LSTM decoder with zeros initial hidden state
+# LSTM decoder with genre initial hidden state
 class LSTMLyrics_by_Genre(nn.Module):
     # constructor parameters with nn.Module as base case
     def __init__(self, vocab_size, embed_dim, hidden_size, genre_embed_size, num_layers=1, bidirectional=False, teacher_forcing_ratio=0.5, num_genres=0):
@@ -174,8 +174,10 @@ class LSTMLyrics_by_Genre(nn.Module):
                             hidden_size = hidden_size,
                             num_layers = num_layers,
                             bidirectional = bidirectional,
+                            dropout = 0.3 if num_layers > 1 else 0.0, #only applies with >1 layer
                             batch_first = True)
         #some additional settings for the forward pass
+        self.dropout = nn.Dropout(0.3) #dropout added
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.num_directions = 2 if bidirectional else 1
@@ -228,6 +230,7 @@ class LSTMLyrics_by_Genre(nn.Module):
             #in goes the concat input and hidden state, out comes the updated hidden and output
             lstm_out, hidden = self.lstm(lstm_input, hidden)  # [B, 1, H]
             #remove unnecesary dim, convert hidden state to logits
+            lstm_out = self.dropout(lstm_out)  # Apply dropout to LSTM output
             output_logits = self.fc(lstm_out.squeeze(1))  # [B, V]
             #store predicted logits
             outputs[:, t, :] = output_logits
@@ -274,7 +277,7 @@ def train_model(model, dataloader, optimizer, criterion, device):
 
     return total_loss / len(dataloader)
 
-def generate_lyrics(model, tokenizer, genre_str, genre2idx, max_len=100, device='cpu'):
+def generate_lyrics(model, tokenizer, genre_str, genre2idx, max_len=100, device='cpu', temperature=1.0):
     model.eval() #disable dropout and gradient tracking
     #convert genre to int and wrap in tensor
     genre_id = genre2idx[genre_str]
@@ -285,8 +288,8 @@ def generate_lyrics(model, tokenizer, genre_str, genre2idx, max_len=100, device=
     input_token = torch.tensor([[tokenizer.word2id["<BOS>"]]], dtype=torch.long, device=device)
 
     #initialize hidden state
-    hidden = (torch.zeros(1, 1, model.hidden_size).to(device),
-              torch.zeros(1, 1, model.hidden_size).to(device))
+    hidden = (torch.zeros(model.num_layers, 1, model.hidden_size).to(device),
+              torch.zeros(model.num_layers, 1, model.hidden_size).to(device))
     #list to store tokens
     generated = ["<BOS>"]
     
@@ -323,14 +326,18 @@ def generate_lyrics(model, tokenizer, genre_str, genre2idx, max_len=100, device=
         # print(f"Probs: {top_probs[0].tolist()}")
 
         #use softmax to get probabilities
-        probs = torch.nn.functional.softmax(logits, dim=-1).squeeze()
+        #probs = torch.nn.functional.softmax(logits, dim=-1).squeeze()
+        scaled_logits = logits.squeeze() / temperature
+        probs = torch.nn.functional.softmax(scaled_logits, dim=-1)
+
+
         
         #sort the probabilities in descending order
         sorted_probs, sorted_indices = torch.sort(probs, descending=True)
         cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
         
         #fin where prob exceeds threshold (like .9 or smth)
-        top_p_threshold = 0.9
+        top_p_threshold = 0.7
         cutoff = cumulative_probs > top_p_threshold
         if torch.any(cutoff):
             last_index = torch.where(cutoff)[0][0]
