@@ -4,18 +4,67 @@
 
 ## Project Overview
 
-This project aims to implement Natural Language Processing (NLP) models to classify songs into their respective genres and generate new lyrics based on genres. We compare the accuracy of different models to determine which performs best and analyze the relationships between lyrics and genre. The project leverages the Spotify API and Genius API to extract lyrics and metadata.
+This project aims to implement and experiment with Natural Language Processing (NLP) models to classify songs into their respective genres and generate new lyrics based on genres. We utilize accuracy, precision, and F-1 to evaluate the classifier, and utilize human evaluation and metric comparisons to evaluate the quality of generated lyrics. The project leverages the Spotify API and Genius API to extract lyrics and metadata. The models used to complete the task are the Uncased Base BERT model for Sequence classification and LSTM for lyric generation. 
+
+
+## Index
+
+- [Key Tasks](#key-tasks)
+  - [Data Collection](#data-collection)
+  - [Text Classification](#text-classification)
+  - [Lyric Generation](#lyric-generation)
+  - [Model Comparison](#model-comparison)
+- [Project Goals](#project-goals)
+- [Team Structure](#team-structure)
+- [Data Collection Process](#data-collection-process)
+  - [Spotify API Integration](#spotify-api-integration)
+  - [Genius API Integration](#genius-api-integration)
+  - [Data Pipeline](#data-pipeline)
+- [Technologies and Libraries](#technologies-and-libraries)
+  - [Data Collection](#data-collection)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Feature Extraction](#feature-extraction)
+- [Text Classification](#text-classification)
+- [Lyric Generation](#lyric-generation)
+   - [Model Selection](#model-selection)
+   - [Model Implementation](#model-implementation)
+   - [Usage](#usage)
+   - [Final Results](#final-results)
+      - [Metrics](#metrics)
+      - [Human Evaluation](#human-evaluation)
+   - [Future Steps](#future-steps)
+- [Acknowledgments](#acknowledgments)
+
 
 ## Key Tasks
 
-1. **Text Classification:**
-   - Classify song lyrics by genre (e.g., rock, pop, rap).
+1. **Data Collection:**
+   - Collect songs and genres
+2. **Text Classification:**
+   - Classify song lyrics by genre (e.g., rock, pop, hiphop).
+3. **Lyric Generation:**
+   - Generate lyrics by genre (e.g., rock, pop, hiphop).
+4. **Model Comparison:**
+   - Evaluate the performance of the two NLP models (BERT, LSTM).
+   - Compare model accuracy and quality to prior works
 
-2. **Model Comparison:**
-   - Evaluate the performance of different NLP models (Encoder/Decoder, BERT, n-gram, LSTM).
-   - Compare model accuracy and efficiency.
+## Project Goals
 
-## Data Collection Process
+- Provide insights into how NLP can enhance music-related applications.
+- Address challenges such as dataset bias and computational efficiency.
+- Identify challenges in lyric generation, experiment with various solutions
+
+## Team Structure
+
+The project is divided into three sub-teams:
+
+- **Data Preprocessing and Classification:** Ima Mervin
+- **NLP Model Task Teams:**
+  - **Team BERT for Classification:** Mia Ray and Mariana Vadas-Arendt.
+  - **Team LSTM for Generation:** Gavin Hanville and Chloe Circenis.
+
+# Data Collection Process
 
 ### Spotify API Integration
 This project collects song metadata and audio features using the Spotify Web API:
@@ -57,12 +106,6 @@ The complete data collection process follows these steps:
 - **Time**: Implements rate limiting to avoid API request throttling
 
 - **OS/Sys**: Manages file paths and environment variables
-
-## Project Goals
-
-- Provide insights into how NLP can enhance music-related applications.
-- Address challenges such as dataset bias and computational efficiency.
-- Compare the performance of advanced models with basic models.
 
 ## Project Structure
 ```bash
@@ -196,14 +239,19 @@ The collector extracts the following data for each track:
 | album_release_date | Release date of the album |
 | album_image_url | URL to the album cover art |
 | lyrics | Full lyrics of the track |
-## Team Structure
 
-The project is divided into three sub-teams:
+# Text Classification
 
-- **Data Preprocessing and Classification:** Ima Mervin
-- **Language Modeling Approaches:**
-  - **Team Finetuning BERT:** Mia Ray and Mariana Vadas-Arendt.
-  - **Team Encoder/Decoder:** Gavin Hanville and Chloe Circenis.
+
+# Lyric Generation
+
+## Model Selection
+## Model Implementation
+## Usage 
+## Final Results
+### Metrics
+### Human Evaluation
+## Future Steps
  
 ## Acknowledgments
 
