@@ -4,18 +4,67 @@
 
 ## Project Overview
 
-This project aims to implement Natural Language Processing (NLP) models to classify songs into their respective genres and generate new lyrics based on genres. We compare the accuracy of different models to determine which performs best and analyze the relationships between lyrics and genre. The project leverages the Spotify API and Genius API to extract lyrics and metadata.
+This project aims to implement and experiment with Natural Language Processing (NLP) models to classify songs into their respective genres and generate new lyrics based on genres. We utilize accuracy, precision, and F-1 to evaluate the classifier, and utilize human evaluation and metric comparisons to evaluate the quality of generated lyrics. The project leverages the Spotify API and Genius API to extract lyrics and metadata. The models used to complete the task are the Uncased Base BERT model for Sequence classification and LSTM for lyric generation. 
+
+
+## Index
+
+- [Key Tasks](#key-tasks)
+  - [Data Collection](#data-collection)
+  - [Text Classification](#text-classification)
+  - [Lyric Generation](#lyric-generation)
+  - [Model Comparison](#model-comparison)
+- [Project Goals](#project-goals)
+- [Team Structure](#team-structure)
+- [Data Collection Process](#data-collection-process)
+  - [Spotify API Integration](#spotify-api-integration)
+  - [Genius API Integration](#genius-api-integration)
+  - [Data Pipeline](#data-pipeline)
+- [Technologies and Libraries](#technologies-and-libraries)
+  - [Data Collection](#data-collection)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Feature Extraction](#feature-extraction)
+- [Text Classification](#text-classification)
+- [Lyric Generation](#lyric-generation)
+   - [Model Selection](#model-selection)
+   - [Model Implementation](#model-implementation)
+   - [Usage](#usage)
+   - [Final Results](#final-results)
+      - [Metrics](#metrics)
+      - [Human Evaluation](#human-evaluation)
+   - [Future Steps](#future-steps)
+- [Acknowledgments](#acknowledgments)
+
 
 ## Key Tasks
 
-1. **Text Classification:**
-   - Classify song lyrics by genre (e.g., rock, pop, rap).
+1. **Data Collection:**
+   - Collect songs and genres
+2. **Text Classification:**
+   - Classify song lyrics by genre (e.g., rock, pop, hiphop).
+3. **Lyric Generation:**
+   - Generate lyrics by genre (e.g., rock, pop, hiphop).
+4. **Model Comparison:**
+   - Evaluate the performance of the two NLP models (BERT, LSTM).
+   - Compare model accuracy and quality to prior works
 
-2. **Model Comparison:**
-   - Evaluate the performance of different NLP models (Encoder/Decoder, BERT, n-gram, LSTM).
-   - Compare model accuracy and efficiency.
+## Project Goals
 
-## Data Collection Process
+- Provide insights into how NLP can enhance music-related applications.
+- Address challenges such as dataset bias and computational efficiency.
+- Identify challenges in lyric generation, experiment with various solutions
+
+## Team Structure
+
+The project is divided into three sub-teams:
+
+- **Data Preprocessing and Classification:** Ima Mervin
+- **NLP Model Task Teams:**
+  - **Team BERT for Classification:** Mia Ray and Mariana Vadas-Arendt.
+  - **Team LSTM for Generation:** Gavin Hanville and Chloe Circenis.
+
+# Data Collection Process
 
 ### Spotify API Integration
 This project collects song metadata and audio features using the Spotify Web API:
@@ -57,12 +106,6 @@ The complete data collection process follows these steps:
 - **Time**: Implements rate limiting to avoid API request throttling
 
 - **OS/Sys**: Manages file paths and environment variables
-
-## Project Goals
-
-- Provide insights into how NLP can enhance music-related applications.
-- Address challenges such as dataset bias and computational efficiency.
-- Compare the performance of advanced models with basic models.
 
 ## Project Structure
 ```bash
@@ -196,14 +239,89 @@ The collector extracts the following data for each track:
 | album_release_date | Release date of the album |
 | album_image_url | URL to the album cover art |
 | lyrics | Full lyrics of the track |
-## Team Structure
 
-The project is divided into three sub-teams:
+# Text Classification
 
-- **Data Preprocessing and Classification:** Ima Mervin
-- **Language Modeling Approaches:**
-  - **Team Finetuning BERT:** Mia Ray and Mariana Vadas-Arendt.
-  - **Team Encoder/Decoder:** Gavin Hanville and Chloe Circenis.
+## About the Model
+
+We used the 12 layer uncased Bert model from huggingface.
+
+
+      HYPERPARAMETERS:
+
+      batch_size = 32
+      learning_rate = 2e-5
+      warmup_steps = 0
+      epochs = 10
+
+      Versions of Libraries:
+      spotipy: 2.23.0
+      pandas: 2.2.2
+      python-dotenv: 1.0.0
+      transformers: 4.51.0
+      torch: 2.6.0
+      numpy: 2.2.5
+      tensorflow: 2.19.0
+      sklearn: 0.0.post12
+      ssl: 1.16
+      nltk: 3.9.1
+      matplotlib: 3.10.1
+      seaborn: 0.13.2
+      time (built in python module, no version)
+      datetime (built in python module, no version)
+      random (built in python module, no version)
+      re (built in python module, no version)
+      os (built in python module, no version)
+      string (built in python module, no version)
+      collections (built in python module, no version)
+
+   
+We used Google Colab as our coding enviornment. The only set up needed is having a Google account!
+
+Below is a link that goes to our shared file in Google Colab that produced the results below
+https://colab.research.google.com/drive/1YSSxpP3xkHEFEB76VOeBX_qoyj1Ly5Gm#scrollTo=ZUkoeLBOlAf2
+
+
+
+# Lyric Generation
+
+## Model Selection
+## Model Implementation
+## Usage 
+## Final Results
+### Metrics
+
+We implemented a comprehensive metrics suite to evaluate both the real lyrics (collected from Spotify + Genius) and the generated lyrics from our models.
+
+The metrics implemented are inspired by Gill et al.’s 2020 research and include:
+
+- Average Line Length → Average number of words per line
+
+- Song Word Variation → Number of unique words divided by total words in a song
+
+- Genre Word Variation → Number of unique words across all songs of a genre
+
+- I vs. You Point-of-View → Difference between the count of lines starting with “I” vs. “You”
+
+- Word Repetition Count → Number of immediate repeated words in a song (e.g., “good good”)
+
+- Cosine Similarity → Quantitative similarity score between generated lyrics and real training lyrics using a bag-of-words vectorization
+
+These metrics are implemented in metrics.py and applied using ```metrics_tests.ipynb,``` where we visualize distributions and averages using ```matplotlib``` and ```seaborn```.
+
+Example Visualizations
+- Bar charts comparing average metric values by genre
+
+- Histograms of cosine similarity distributions between generated and real songs
+
+- Comparative tables showing top genres with highest or lowest metric scores
+
+The results provide a quantitative foundation to assess how closely generated lyrics match the stylistic and linguistic patterns of real-world lyrics.
+
+
+
+### Human Evaluation
+## Future Steps
  
 ## Acknowledgments
 
