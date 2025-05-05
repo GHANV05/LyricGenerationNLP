@@ -242,6 +242,46 @@ The collector extracts the following data for each track:
 
 # Text Classification
 
+## About the Model
+
+We used the 12 layer uncased Bert model from huggingface.
+
+
+      HYPERPARAMETERS:
+
+      batch_size = 32
+      learning_rate = 2e-5
+      warmup_steps = 0
+      epochs = 10
+
+      Versions of Libraries:
+      spotipy: 2.23.0
+      pandas: 2.2.2
+      python-dotenv: 1.0.0
+      transformers: 4.51.0
+      torch: 2.6.0
+      numpy: 2.2.5
+      tensorflow: 2.19.0
+      sklearn: 0.0.post12
+      ssl: 1.16
+      nltk: 3.9.1
+      matplotlib: 3.10.1
+      seaborn: 0.13.2
+      time (built in python module, no version)
+      datetime (built in python module, no version)
+      random (built in python module, no version)
+      re (built in python module, no version)
+      os (built in python module, no version)
+      string (built in python module, no version)
+      collections (built in python module, no version)
+
+   
+We used Google Colab as our coding enviornment. The only set up needed is having a Google account!
+
+Below is a link that goes to our shared file in Google Colab that produced the results below
+https://colab.research.google.com/drive/1YSSxpP3xkHEFEB76VOeBX_qoyj1Ly5Gm#scrollTo=ZUkoeLBOlAf2
+
+
 
 # Lyric Generation
 
