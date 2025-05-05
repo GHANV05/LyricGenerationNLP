@@ -1,121 +1,364 @@
+# libraries
+#pytorch is used for implementing the model
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+import random
+import nltk
+from nltk.tokenize import word_tokenize
+from collections import Counter
+from torch.utils.data import Dataset
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
-# Encoder Baseline Class
-# Process an input sequence and convert it into a fixed-size internal representation (hidden & cell state).
-# Representation will be pased to Decoder to generate a target sequence
+#tokenize the data
+#nltk.download('punkt') #sentance tokenizer
 
-class Encoder(nn.Module):
-    """
-    Initializes the Encoder module.
-    
-    Args:
-        input_dim (int): Size of the input vocabulary (number of unique tokens).
-        emb_dim (int): Size of the word embeddings.
-        hid_dim (int): Number of features in the hidden state of the LSTM.
-        dropout (float): Dropout rate to prevent overfitting.
-    """
-    
-    def __init(self, input_dim, emb_dim, hid_dim, dropout):
+class LyricsTokenizer:
+    def __init__(self, min_freq=1, max_length=500):
+        self.min_freq = min_freq #minimum freq to be in the vocab (really unique words removed)
+        self.max_length = max_length #max length of song
+        self.special_tokens = ['<PAD>', '<UNK>', '<EOS>', '<BOS>']
+        self.word2id = {} #map words to token ids 
+        self.id2word = {} #map ids back to words
+
+    #build a vocab of unique words, filter rare words, and assign word ids
+    def build_vocab(self, songs):
+        #first make a clean list of token lists, lower case and split with word_tokenize
+        tokenized = []
+        for song in songs:
+            song = song.lower()
+            tokens = word_tokenize(song)
+            tokenized.append(tokens)
+        #list of allllll tokens not in individual lists
+        all_tokens = []
+        for song_tokens in tokenized:
+            for token in song_tokens:
+                all_tokens.append(token)
+        #count for each token in the list
+        freq = Counter(all_tokens)
+        #remove tokens with 1 or less occurrances (can be changed to more than 1)
+        vocab = []
+        for token, count in freq.items():
+            if count > self.min_freq:
+                vocab.append(token)
+        #add special tokens 
+        #(pad tokens for same length, unk for rare words, BOS start of lyric, eos end of lyric)
+        full_vocab = self.special_tokens + sorted(vocab)
+        self.vocab = full_vocab
+        self.tokenized_songs = tokenized
+
+        self.word2id = {} #map token to index
+        self.id2word = {} #map index to token
+        for idx in range(len(full_vocab)):
+            token = full_vocab[idx]
+            self.word2id[token] = idx
+            self.id2word[idx] = token
+        assert self.word2id['<PAD>'] == 0
+
+
+    def tokenize(self, examples):
+        example_ids = []
+        misses = 0
+        total = 0
+
+        for example in examples:
+            #clean the tokens
+            example = example.lower()
+            tokens = word_tokenize(example)
+            ids = []
+
+            for token in tokens:
+                #check for word in dictionary
+                if token in self.word2id:
+                    ids.append(self.word2id[token])
+                #else add to misses and add an unk char
+                else:
+                    misses += 1
+                    ids.append(self.word2id['<UNK>'])
+                total += 1 #count of all tokens
+            #truncate ids if its too long
+            if len(ids) >= self.max_length:
+                ids = ids[:self.max_length]
+                length = self.max_length
+            #else add pad tokens to achieve max length
+            else:
+                length = len(ids)
+                ids.extend([self.word2id['<PAD>']] * (self.max_length - len(ids)))
+                
+            #turn numerical ids into pytorch tensors
+            tensor_ids = torch.tensor(ids, dtype=torch.long)
+            #tuples of the real length of the song before padding, 
+            example_ids.append((tensor_ids, length))
+            
+        print('Missed {} out of {} words -- {:.2f}%'.format(misses, total, 100 * misses / total))
+        return example_ids
+
+    def vocab_size(self):
+        return len(self.word2id)
+
+    #unused in curr version but worth keeping just in case it comes in handy (was used for debugging)
+    def untokenize(self, token_ids):
+        words = []
+        for idx in token_ids:
+            word = self.id2word.get(idx.item() if isinstance(idx, torch.Tensor) else idx, '<UNK>')
+            # Skip padding
+            if word == '<PAD>':
+                continue
+            words.append(word)
+        return ' '.join(words)
+
+
+#dataset design
+
+class LyricsGenreDataset(Dataset):
+    #initialize the dataset
+    def __init__(self, tokenized_lyrics, genres, genre2idx):
+        self.tokenized_lyrics = tokenized_lyrics  # list of (tensor, length) see above
+        self.genre_ids = [] #empty list initialized
+
+        for genre in genres:
+            #transform the genre into a pytorch tensor
+            genre_tensor = torch.tensor(genre2idx[genre], dtype=torch.long)
+            #add to the list
+            self.genre_ids.append(genre_tensor)
+    #pass size of data set to pytorch
+    def __len__(self):
+        return len(self.tokenized_lyrics)
+    #returns a specifiec data point as needed
+    def __getitem__(self, idx):
+        lyrics_tensor, length = self.tokenized_lyrics[idx]
+        genre_id = self.genre_ids[idx]
+        return lyrics_tensor, genre_id
+
+
+#get a list of tuples (tensor, length, genre) and store them temporarily
+def collate_fn(batch): 
+    lyrics_batch = []
+    genres = []
+
+    for item in batch:
+        lyrics_tensor, genre_id = item
+        lyrics_batch.append(lyrics_tensor)
+        genres.append(genre_id)
+    #stack all the tensors into one tensor, (batch_size, seq_length)
+    lyrics_batch = torch.stack(lyrics_batch)
+    #make the genres one tensor (batch_size)
+    genres_tensor = torch.stack(genres)
+    #this is my teacher forcing in collation
+    inputs = lyrics_batch[:, :-1] #all tokens except the last one
+    targets = lyrics_batch[:, 1:] #all tokens except the first one
+    #outputs 4 tensors created above
+    return inputs, targets, genres_tensor
+
+
+# LSTM decoder with genre initial hidden state
+class LSTMLyrics_by_Genre(nn.Module):
+    # constructor parameters with nn.Module as base case
+    def __init__(self, vocab_size, embed_dim, hidden_size, genre_embed_size, num_layers=1, bidirectional=False, teacher_forcing_ratio=0.5, num_genres=0):
+        # vocab size = size of unique dictionary of tokens
+        # embed dim = size of word embeddings
+        # hidden size = size of hidden state
+        # genre embed size = size of genre embedding vector
+        # num layers = number of stacked lstm layers
+        # not bidirectional = reads only forwad - could change this?
+        # teacher forcing ratio = probability of using ground truth during training
+        # num genres = how many genres - i think we have 10 but I am using 5
         super().__init__()
+        #embedding vector for each token in vocab
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        #embedding vector for each genre
+        self.genre_embedding = nn.Embedding(num_genres, genre_embed_size)
+        #core lstm set up
+        self.lstm = nn.LSTM(input_size = embed_dim + genre_embed_size, 
+                            hidden_size = hidden_size,
+                            num_layers = num_layers,
+                            bidirectional = bidirectional,
+                            dropout = 0.3 if num_layers > 1 else 0.0, #only applies with >1 layer
+                            batch_first = True)
+        #some additional settings for the forward pass
+        self.dropout = nn.Dropout(0.3) #dropout added
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+        self.num_directions = 2 if bidirectional else 1
+        #linear layer for mapping outputs/hidden state to the dictionary
+        self.fc = nn.Linear(hidden_size * self.num_directions, vocab_size)
+        #how often should the model use the ground truth token instead of its own token
+        self.teacher_forcing_ratio = teacher_forcing_ratio
+        # trying out genre embedding hidden state beginnings (zero init really sucked, so this is permanent)
+        self.genre_to_hidden = nn.Linear(genre_embed_size, self.num_layers * self.num_directions * self.hidden_size)
+        self.genre_to_cell = nn.Linear(genre_embed_size, self.num_layers * self.num_directions * self.hidden_size)
 
-        # Embedding layer: maps token IDs to dense vectors of size emb_dim
-        self.embedding = nn.Embedding(input_dim, emb_dim)
 
-        # LSTM layer: processes embedded tokens sequentially
-        self.rnn = nn.LSTM(emb_dim, hid_dim)
+#forward pass def
+    def forward(self, lyrics_input, genre_input, targets=None):
+        #targets are the ground truth indices for teacher forcing
+        batch_size, seq_len = lyrics_input.size()
+        #ensure that the code won't have issues with CPU and GPU mismatches
+        device = lyrics_input.device 
+        #tensor for each output at each timestep shape: (batch size, seq length, vocab size)
+        outputs = torch.zeros(batch_size, seq_len, self.fc.out_features).to(device)
+        
+        # Embed genre into vectors
+        genre_embeds = self.genre_embedding(genre_input)  # shape: [B, G]
+        #unsqueeze to concatenated to lyrics at each timestep
+        genre_embeds = genre_embeds.unsqueeze(1)  # shape: [B, 1, G]
 
-        # Dropout: applied to embeddings to reduce overfitting
-        self.dropout = nn.Dropout(dropout)
+        # genre based embedding changes
+        hidden_flat = self.genre_to_hidden(genre_embeds.squeeze(1))  # [B, L*D*H]
+        cell_flat = self.genre_to_cell(genre_embeds.squeeze(1))      # [B, L*D*H]
 
-    def forward(self, src):
-        """
-        Forward pass of the encoder.
+        # Reshape to match LSTM expected shape: [num_layers * num_directions, batch_size, hidden_size]
+        h_0 = hidden_flat.view(self.num_layers * self.num_directions, batch_size, self.hidden_size).contiguous()
+        c_0 = cell_flat.view(self.num_layers * self.num_directions, batch_size, self.hidden_size).contiguous()
 
-        Args:
-            src (Tensor): Input sequence tensor of shape [src_len, batch_size], 
-                          where each element is a token ID.
+        #first token from each lyric in batch
+        input_token = lyrics_input[:, 0]  # start with first token (usually BOS)
+        #hidden state is tuple for loop purposes
+        hidden = (h_0, c_0)
+        #loop through each timestep word by word
+        for t in range(seq_len):
+            #embed the input and add dim for lstm stds
+            lyric_embed = self.embedding(input_token).unsqueeze(1)  # [B, 1, E]
+            #already correct, occurs at each time step
+            genre_expand = genre_embeds  # [B, 1, G]
+            #concat step btween lyric and genre
+            lstm_input = torch.cat([lyric_embed, genre_expand], dim=2)  # [B, 1, E+G]
+            #in goes the concat input and hidden state, out comes the updated hidden and output
+            lstm_out, hidden = self.lstm(lstm_input, hidden)  # [B, 1, H]
+            #remove unnecesary dim, convert hidden state to logits
+            lstm_out = self.dropout(lstm_out)  # Apply dropout to LSTM output
+            output_logits = self.fc(lstm_out.squeeze(1))  # [B, V]
+            #store predicted logits
+            outputs[:, t, :] = output_logits
+            #TEACHER FORCING: sometimes the model uses ground truth, otherwise prediction, based on supplied probability
+            if targets is not None and random.random() < self.teacher_forcing_ratio:
+                input_token = targets[:, t]  # Use ground truth
+            else:
+                input_token = output_logits.argmax(dim=1)  # Use model prediction
+        #return all the logits for each position in sequence
+        return outputs
 
-        Returns:
-            hidden (Tensor): Final hidden state of the LSTM [1, batch_size, hid_dim]
-            cell (Tensor): Final cell state of the LSTM [1, batch_size, hid_dim]
-        """
-        # src: [src_len, batch_size]
-        # Example src prompt: 
-        # src = torch.tensor([[3, 17, 42], [12, 5, 9], [7, 3, 1]])  # Shape: [src_len=3, batch_size=3]
+
+# training
+def train_model(model, dataloader, optimizer, criterion, device):
+    model.train() #sets model into training mode
+    total_loss = 0.0 #var to keep track of loss through whole run
+    # model = LSTM duh
+    # dataloader = batches of data, lyrics and genre in this case
+    # optimizer = adam i think
+    # criterion = loss function, cross entropy loss
+
+    #loop through the dataloader to get a batch of data in the needed format
+    for batch in tqdm(dataloader, desc="Training", leave=False):
+        inputs, targets, genres = batch
+        #stay in the right device to avoid errors!
+        inputs, targets, genres = inputs.to(device), targets.to(device), genres.to(device)
+        #clear gradients to avoid accumulation
+        optimizer.zero_grad()
+        #forward pass
+        outputs = model(inputs, genres, targets)
+        #reshape the outputS and target for cross entropy loss
+        #outputs predictionf over vocab for time step
+        outputs = outputs.view(-1, outputs.size(-1))  # [B*T, V]
+        #vector of target indices
+        targets = targets.reshape(-1)                 # [B*T]
+        #compute the loss, difference btween predition and real
+        loss = criterion(outputs, targets)
+        #backpropogate the gradients
+        loss.backward()
+        #update model parameters
+        optimizer.step()
+        #add to loss for tracking
+        total_loss += loss.item()
+
+    return total_loss / len(dataloader)
+
+def generate_lyrics(model, tokenizer, genre_str, genre2idx, max_len=100, device='cpu', temperature=1.0):
+    model.eval() #disable dropout and gradient tracking = eval mode
+    
+    #convert genre to index and create a tensor representation
+    genre_id = genre2idx[genre_str]
+    genre_tensor = torch.tensor([genre_id], dtype=torch.long, device=device)
+    
+    #embed genre for concatting tp the input to the model at each step
+    genre_embed = model.genre_embedding(genre_tensor).unsqueeze(1)
+    
+    #start sequence with BOS token
+    input_token = torch.tensor([[tokenizer.word2id["<BOS>"]]], dtype=torch.long, device=device)
+
+    #initialize hidden state (not as genre bcs we are adding genre at each step)
+    hidden = (torch.zeros(model.num_layers, 1, model.hidden_size).to(device),
+              torch.zeros(model.num_layers, 1, model.hidden_size).to(device))
+    #list to store tokens
+    generated = ["<BOS>"]
+    
+    #generation loop: up to max size
+    for step in range(max_len):
+        #embedding of current token (BOS at first time step)
+        token_embed = model.embedding(input_token)  # shape: (1, 1, embed_dim)
+
+        # Concatenate genre embedding with the token embedding
+        lstm_input = torch.cat((token_embed, genre_embed), dim=2)  
+        #shape: (1, 1, embed_dim + genre_dim)
+
+        #pass input through LSTM, update hidden state
+        output, hidden = model.lstm(lstm_input, hidden)
+        
+        #project LSTM output on vocab space
+        logits = model.fc(output.squeeze(1))  
+        #shape: (1, vocab_size)
+
+        #softmax applied to get probabilities for each word 
+        #use top k for computational efficiency
+        topk = torch.topk(logits, 50)
+        top_probs = torch.nn.functional.softmax(topk.values, dim=-1)
+        
+        #debuggung code
+        # print(f"Top tokens: {[tokenizer.id2word[i.item()] for i in topk.indices[0]]}")
+        # print(f"Probs: {top_probs[0].tolist()}")
+
+        #use top-p nucleus sampling, adjust temperature
+        scaled_logits = logits.squeeze() / temperature
+        #convert to a probability distribution
+        probs = torch.nn.functional.softmax(scaled_logits, dim=-1)
+
 
         
-        # Step 1: Embed the input sequence and apply dropout
-        # embedded: [src_len, batch_size, emb_dim]
-        embedded = self.dropout(self.embedding(src)) # [src_len, batch_size, emb_dim]
+        #sort the probabilities in descending order
+        sorted_probs, sorted_indices = torch.sort(probs, descending=True)
+        #cumulative sum for top-p threshhold
+        cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
+        
+        #finish where prob exceeds threshold (like .9 or smth)
+        top_p_threshold = 0.7
+        cutoff = cumulative_probs > top_p_threshold
+        if torch.any(cutoff):
+            last_index = torch.where(cutoff)[0][0]
+            sorted_probs = sorted_probs[:last_index + 1]
+            sorted_indices = sorted_indices[:last_index + 1]
+        
+        #pick one from the filtered distribution
+        sorted_probs = sorted_probs / sorted_probs.sum()  # re-normalize
+        #random selection
+        next_token_id = sorted_indices[torch.multinomial(sorted_probs, 1).item()].item()
+        #decode token back to word
+        next_token = tokenizer.id2word[next_token_id]
 
-        # Step 2: Pass through the LSTM
-        # outputs: [src_len, batch_size, hid_dim] (not used here)
-        # hidden: [1, batch_size, hid_dim] — final hidden state
-        # cell: [1, batch_size, hid_dim] — final cell state
-        outputs, (hidden, cell) = self.rnn(embedded)
+        #debugging code
+        # print(f"[Step {step}] Predicted token: {next_token}")
+        # print("Decoded:", " ".join([tokenizer.id2word[token.item()] for token in tokenized_lyrics[0]]))
 
-        # Step 3: Return hidden and cell state to be used by the decoder
-        return hidden, cell
-
-# Decoder Baseline Class
-# Takes hidden and cell states from encoder and usese them to
-# generate a sequence of output tokens one at a time
-
-class Decoder(nn.Module):
-    def __init__(self, output_dim, emb_dim, hid_dim, dropout):
-        """
-        Intializes the Decoder module
-
-        Args:
-            output_dim (int_: Size of the ouput vocabulary
-            emb_dim (int): Size of the token embeddings
-            hid_dim (int): Number of features in the hidden state o the LSTM
-            dropout (float): Dropout rate to prevent overfitting
-        """
-        super().__init__()
-
-        # Embedding layer: turns token indices into dense vectors
-        self.embedding = nn.Embedding(output_dim, emb_dim)
-
-        # LSTM layer : takes embedded input + previous hidden/cell state and returns new states
-        self.rnn = nn.LSTM(emb_dim, output_dim)
-
-        # Lienar output layer: maps LSTM output to vocab space
-        self.fc_out = nn.Linear(hid_dim, output_dim)
-
-        # Dropout to reduce overfitting
-        self.dropout = nn.Dropout(dropout)
-
-    def forward(self, input_token, hidden, cell):
-        """
-        Forward pass of the decoder for one time step
-
-        Args:
-            input_token (Tensor): The current input token [batch_size]
-            hidden (Tensor): The hidden state from the previous time step [1, batch_size, hid_dim]
-            cell (Tensor): The cell sate from the previous time step [1, batch_size, hid_dim]
-
-        Returns:
-            prediction (Tensor): Logits for the next token prediciton [batch_size, output_dim]
-            hidden (Tensor): Updated hidden state
-            cell (Tensor): Updated cell state
-        """
-        # Step 1: Add time dimension to input token for embedding
-        # input_token: [batch_size] --> [1, batch_size]
-        input_token = input_token.unsqueeze(0)
-
-        # Step 2: Embed the input token and apply dropout
-        # embeddedd: [1, batch_size, emb_dim]
-        embedded = self.dropout(self.embedding(input_token))
-
-        # Step 3: Run the LSTM for one step with the embedded input
-        # output: [1, batch_size, hid_dim]
-        output, (hidden, cell) = self.rnn(embedded, (hidden,cell))
-
-        # Step 4: Remove time dimension and apply linear layer to get vocab logits
-        # prediction: [batch_size, output_dim]
-        prediction = self.fc_out(output.squeeze(0))
-
-        return prediction, hidden cell
+        #song is over at eos (but it pretty much never gets here tbh)
+        if next_token == "<EOS>":
+            break
+        if next_token == "<UNK>" or next_token == "<PAD>": #skip non-word tokens
+            continue
+        #add the predicted word to the list
+        generated.append(next_token)
+    
+        # prepare this to be the next input
+        input_token = torch.tensor([[next_token_id]], dtype=torch.long, device=device)
+    #return the final predictions
+    return " ".join(generated[1:])  # remove <BOS> for clean output
 

@@ -37,7 +37,7 @@ class LyricsTokenizer:
                 all_tokens.append(token)
         #count for each token in the list
         freq = Counter(all_tokens)
-        #remove tokens with 2 or less occurrances
+        #remove tokens with 1 or less occurrances (can be changed to more than 1)
         vocab = []
         for token, count in freq.items():
             if count > self.min_freq:
@@ -97,7 +97,7 @@ class LyricsTokenizer:
     def vocab_size(self):
         return len(self.word2id)
 
-    
+    #unused in curr version but worth keeping just in case it comes in handy (was used for debugging)
     def untokenize(self, token_ids):
         words = []
         for idx in token_ids:
@@ -115,7 +115,7 @@ class LyricsGenreDataset(Dataset):
     #initialize the dataset
     def __init__(self, tokenized_lyrics, genres, genre2idx):
         self.tokenized_lyrics = tokenized_lyrics  # list of (tensor, length) see above
-        self.genre_ids = []
+        self.genre_ids = [] #empty list initialized
 
         for genre in genres:
             #transform the genre into a pytorch tensor
@@ -163,7 +163,7 @@ class LSTMLyrics_by_Genre(nn.Module):
         # num layers = number of stacked lstm layers
         # not bidirectional = reads only forwad - could change this?
         # teacher forcing ratio = probability of using ground truth during training
-        # num genres = how many genres - i think we have 10 
+        # num genres = how many genres - i think we have 10 but I am using 5
         super().__init__()
         #embedding vector for each token in vocab
         self.embedding = nn.Embedding(vocab_size, embed_dim)
@@ -185,7 +185,7 @@ class LSTMLyrics_by_Genre(nn.Module):
         self.fc = nn.Linear(hidden_size * self.num_directions, vocab_size)
         #how often should the model use the ground truth token instead of its own token
         self.teacher_forcing_ratio = teacher_forcing_ratio
-        # trying out genre embedding hidden state beginnings
+        # trying out genre embedding hidden state beginnings (zero init really sucked, so this is permanent)
         self.genre_to_hidden = nn.Linear(genre_embed_size, self.num_layers * self.num_directions * self.hidden_size)
         self.genre_to_cell = nn.Linear(genre_embed_size, self.num_layers * self.num_directions * self.hidden_size)
 
@@ -198,10 +198,7 @@ class LSTMLyrics_by_Genre(nn.Module):
         device = lyrics_input.device 
         #tensor for each output at each timestep shape: (batch size, seq length, vocab size)
         outputs = torch.zeros(batch_size, seq_len, self.fc.out_features).to(device)
-
-        # # Initial hidden state is all zeros for now
-        # h_0 = torch.zeros(self.num_layers * self.num_directions, batch_size, self.hidden_size).to(device)
-        # c_0 = torch.zeros(self.num_layers * self.num_directions, batch_size, self.hidden_size).to(device)
+        
         # Embed genre into vectors
         genre_embeds = self.genre_embedding(genre_input)  # shape: [B, G]
         #unsqueeze to concatenated to lyrics at each timestep
@@ -278,16 +275,19 @@ def train_model(model, dataloader, optimizer, criterion, device):
     return total_loss / len(dataloader)
 
 def generate_lyrics(model, tokenizer, genre_str, genre2idx, max_len=100, device='cpu', temperature=1.0):
-    model.eval() #disable dropout and gradient tracking
-    #convert genre to int and wrap in tensor
+    model.eval() #disable dropout and gradient tracking = eval mode
+    
+    #convert genre to index and create a tensor representation
     genre_id = genre2idx[genre_str]
     genre_tensor = torch.tensor([genre_id], dtype=torch.long, device=device)
-    #embed genre for concatting
+    
+    #embed genre for concatting tp the input to the model at each step
     genre_embed = model.genre_embedding(genre_tensor).unsqueeze(1)
-    #starts with BOS token
+    
+    #start sequence with BOS token
     input_token = torch.tensor([[tokenizer.word2id["<BOS>"]]], dtype=torch.long, device=device)
 
-    #initialize hidden state
+    #initialize hidden state (not as genre bcs we are adding genre at each step)
     hidden = (torch.zeros(model.num_layers, 1, model.hidden_size).to(device),
               torch.zeros(model.num_layers, 1, model.hidden_size).to(device))
     #list to store tokens
@@ -295,48 +295,42 @@ def generate_lyrics(model, tokenizer, genre_str, genre2idx, max_len=100, device=
     
     #generation loop: up to max size
     for step in range(max_len):
-        # #embed current token (BOS at first time step)
-        # lyric_embed = model.embedding(input_token).unsqueeze(1)  # [1, 1, E]
-        # lyric_embed = lyric_embed.squeeze(1) 
-        # # print(f"lyric_embed shape: {lyric_embed.shape}")
-        # # print(f"genre_embed shape: {genre_embed.shape}")
-
-        # #concatts the genre embedding to the token
-        # lstm_input = torch.cat([lyric_embed, genre_embed], dim=2)  # [1, 1, E+G]
-        # #passes through the model and gets next state
-        # output, hidden = model.lstm(lstm_input, hidden)
-        # #converts into vector of vocab-size logits, remove timestep dim bcs we're doing one token at a time
-        # logits = model.fc(output.squeeze(1))  # [1, V]
-        # #uses greedy decoding and selects the index with the highest score
-        # predicted_id = logits.argmax(dim=-1).item()
-        # #transformes into a python int
-        # word = tokenizer.id2word[predicted_id]
-
+        #embedding of current token (BOS at first time step)
         token_embed = model.embedding(input_token)  # shape: (1, 1, embed_dim)
 
-        # Concatenate genre embedding
-        lstm_input = torch.cat((token_embed, genre_embed), dim=2)  # shape: (1, 1, embed_dim + genre_dim)
+        # Concatenate genre embedding with the token embedding
+        lstm_input = torch.cat((token_embed, genre_embed), dim=2)  
+        #shape: (1, 1, embed_dim + genre_dim)
 
+        #pass input through LSTM, update hidden state
         output, hidden = model.lstm(lstm_input, hidden)
-        logits = model.fc(output.squeeze(1))  # shape: (1, vocab_size)
+        
+        #project LSTM output on vocab space
+        logits = model.fc(output.squeeze(1))  
+        #shape: (1, vocab_size)
 
-        topk = torch.topk(logits, 5)
+        #softmax applied to get probabilities for each word 
+        #use top k for computational efficiency
+        topk = torch.topk(logits, 50)
         top_probs = torch.nn.functional.softmax(topk.values, dim=-1)
+        
+        #debuggung code
         # print(f"Top tokens: {[tokenizer.id2word[i.item()] for i in topk.indices[0]]}")
         # print(f"Probs: {top_probs[0].tolist()}")
 
-        #use softmax to get probabilities
-        #probs = torch.nn.functional.softmax(logits, dim=-1).squeeze()
+        #use top-p nucleus sampling, adjust temperature
         scaled_logits = logits.squeeze() / temperature
+        #convert to a probability distribution
         probs = torch.nn.functional.softmax(scaled_logits, dim=-1)
 
 
         
         #sort the probabilities in descending order
         sorted_probs, sorted_indices = torch.sort(probs, descending=True)
+        #cumulative sum for top-p threshhold
         cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
         
-        #fin where prob exceeds threshold (like .9 or smth)
+        #finish where prob exceeds threshold (like .9 or smth)
         top_p_threshold = 0.7
         cutoff = cumulative_probs > top_p_threshold
         if torch.any(cutoff):
@@ -346,17 +340,19 @@ def generate_lyrics(model, tokenizer, genre_str, genre2idx, max_len=100, device=
         
         #pick one from the filtered distribution
         sorted_probs = sorted_probs / sorted_probs.sum()  # re-normalize
+        #random selection
         next_token_id = sorted_indices[torch.multinomial(sorted_probs, 1).item()].item()
+        #decode token back to word
         next_token = tokenizer.id2word[next_token_id]
 
         #debugging code
         # print(f"[Step {step}] Predicted token: {next_token}")
         # print("Decoded:", " ".join([tokenizer.id2word[token.item()] for token in tokenized_lyrics[0]]))
 
-        #song is over at eos
+        #song is over at eos (but it pretty much never gets here tbh)
         if next_token == "<EOS>":
             break
-        if next_token == "<UNK>" or next_token == "<PAD>":
+        if next_token == "<UNK>" or next_token == "<PAD>": #skip non-word tokens
             continue
         #add the predicted word to the list
         generated.append(next_token)
