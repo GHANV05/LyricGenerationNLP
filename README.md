@@ -250,6 +250,36 @@ The collector extracts the following data for each track:
 ## Usage 
 ## Final Results
 ### Metrics
+
+We implemented a comprehensive metrics suite to evaluate both the real lyrics (collected from Spotify + Genius) and the generated lyrics from our models.
+
+The metrics implemented are inspired by Gill et al.’s 2020 research and include:
+
+- Average Line Length → Average number of words per line
+
+- Song Word Variation → Number of unique words divided by total words in a song
+
+- Genre Word Variation → Number of unique words across all songs of a genre
+
+- I vs. You Point-of-View → Difference between the count of lines starting with “I” vs. “You”
+
+- Word Repetition Count → Number of immediate repeated words in a song (e.g., “good good”)
+
+- Cosine Similarity → Quantitative similarity score between generated lyrics and real training lyrics using a bag-of-words vectorization
+
+These metrics are implemented in metrics.py and applied using ```metrics_tests.ipynb,``` where we visualize distributions and averages using ```matplotlib``` and ```seaborn```.
+
+Example Visualizations
+- Bar charts comparing average metric values by genre
+
+- Histograms of cosine similarity distributions between generated and real songs
+
+- Comparative tables showing top genres with highest or lowest metric scores
+
+The results provide a quantitative foundation to assess how closely generated lyrics match the stylistic and linguistic patterns of real-world lyrics.
+
+
+
 ### Human Evaluation
 ## Future Steps
  
