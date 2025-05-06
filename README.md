@@ -281,22 +281,40 @@ We used Google Colab as our coding enviornment. The only set up needed is having
 Below is a link that goes to our shared file in Google Colab that produced the results
 https://colab.research.google.com/drive/1YSSxpP3xkHEFEB76VOeBX_qoyj1Ly5Gm#scrollTo=ZUkoeLBOlAf2
 
-
 We ran this model using Python version 3.11.12 (default for Google Colab)
 
 ## Data
-We are only using INSERT NUMBER OF GENRES WE DECIDE ON HERE genres. We filtered out songs that had more than 100 unknown words in the nltk word corpus. We filtered these songs because we wanted only english songs, but were worried that some words in these songs could have typos or would not exist in the word corpus so we added a buffer to not filter out any songs that we didn't want to. For every song, there is a genre associated with it. For some of our data, songs had multiple genres so we chose to classify the song as the first genre before handing it to the model. The input to train the model must have two arrays, one being the songs and the other being the genre associated with each song. For example, song at index 2 in the songs array with correspond with the genre at index 2 in the genres array. For validation and testing, the output is the predicted label of a song.
+Our pool of usable data contains 5131 songs across 14 genres. We filtered out songs that had more than 100 unknown words in the nltk word corpus. We filtered these songs because we wanted only english songs, but were worried that some words in these songs could have typos or would not exist in the word corpus so we added a buffer to not filter out any songs that we didn't want to. For every song, there is a genre associated with it. For some of our data, songs had multiple genres so we chose to classify the song as the first (hopefully primary) genre before handing it to the model. Our data was not spread evenly across genres, and we had around 2800 songs from two categories (rb and disco), which produced a heavy bias toward those two genres in the models trained from this version of the dataset (a 10 genre and 14 genre version). To solve this, we implemented a hyperparameter that allows the user to decide if they want to cap the number of songs from these two genres and what that number should be. We trained several models using a smaller, more evenly spread, dataset by capping these two genres at 600, and evaluating at 14 genres, 10 genres, and 6 genres. These models had various performances, discussed below.
 
-Per batch evaluations are outputted into training_eval_data.csv file. We store training loss, validation loss, validation accuracy, validation precision, validation recall, validation F1 score, training time, validation time, predicted labels, and true labels.
+The input to train the model must have two arrays, one being the songs and the other being the genre associated with each song (both strings). For example, song at index 2 in the songs array with correspond with the genre at index 2 in the genres array. For validation and testing, the output is the predicted label of a song.
+
+Per batch evaluations are outputted into training_eval_data.csv file. We store training loss, validation loss, validation accuracy, validation precision, validation recall, validation F1 score, training time, validation time, predicted labels, and true labels. Through this, we should be able to identify the optimal training time for each version of the dataset we try, and compute confusion matrices for any epoch we chose.
 
 Checkpoints are stored in the .ipynb_checkpoints folder.
 
 ## Final Results
-Accuracy:
+- Top 14 Genres, Unlimited
+  - Average Test Accuracy: 0.599
+  - Average Test F-1 Score: 0.579
+  - This model, along with these metrics, is highly focused on the two categories rb and disco. Several genres were virtually unrepresented in the dataset and were almost absent from the predictions the model made.  
+- Top 10 Genres, Unlimited
+  - Average Test Accuracy: 0.563
+  - Average Test F-1 Score: 0.545 
+  - We thought that reducing the number of genres the model was predicting would improve the model's metrics, but unfortunately this wasn't the case. We changed our approach after this round of training.
+- Top 14 Genres, Max Count = 600
+  - Average Test Accuracy: 0.430
+  - Average Test F-1 Score: 0.409
+  - This model performed the worst out of any model we ran, and we attribute this to the smaller number of songs. We lost almost 1000 songs from limiting the dataset, and our performance takes a hit because of that. Additionally, we're trying to get the model to learn more about different genres, so it makes more misclassifications. The most common misclassification was labelling rock music as metal, which makes sense considering how similar the genres are, especially lyrically.
+- Top 10 Genres, Max Count = 600
+  - Average Test Accuracy: 0.454
+  - Average Test F-1 Score: 0.431
+  - This model improves on its metrics marginally, but doesn't make a massive jump in productivity. When comparing pre- and post-finetuned confusion matrices, it's clear that the model is learning, it's just limited by the amount of data we have.
+- Top 6 Genres, Max Count = 600
+  - Average Test Accuracy: 0.493
+  - Average Test F-1 Score: 0.480
+  - This is our last, and smallest model. It has the smallest number of songs and genres to choose from (genres we have at least a couple hundred songs for each). This model continues to frequently misclassify rock as metal, but I'd be satisfied drawing a conclusion about the two genres from that, instead of a conclusion about our model.
 
-F1 score:
 
-Precision:
 
 # Lyric Generation
 
