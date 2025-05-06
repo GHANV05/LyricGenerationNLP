@@ -278,9 +278,16 @@ We used the 12 layer uncased Bert model from huggingface.
    
 We used Google Colab as our coding enviornment. The only set up needed is having a Google account!
 
-Below is a link that goes to our shared file in Google Colab that produced the results below
+Below is a link that goes to our shared file in Google Colab that produced the results
 https://colab.research.google.com/drive/1YSSxpP3xkHEFEB76VOeBX_qoyj1Ly5Gm#scrollTo=ZUkoeLBOlAf2
 
+
+We ran this model using Python version 3.11.12 (default for Google Colab)
+
+## Data
+
+
+## Final Results
 
 
 # Lyric Generation
