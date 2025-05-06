@@ -13,7 +13,6 @@ This project aims to implement and experiment with Natural Language Processing (
   - [Data Collection](#data-collection)
   - [Text Classification](#text-classification)
   - [Lyric Generation](#lyric-generation)
-  - [Model Comparison](#model-comparison)
 - [Project Goals](#project-goals)
 - [Team Structure](#team-structure)
 - [Data Collection Process](#data-collection-process)
@@ -32,6 +31,11 @@ This project aims to implement and experiment with Natural Language Processing (
 - [Lyric Generation](#lyric-generation)
    - [Model Selection](#model-selection)
    - [Model Implementation](#model-implementation)
+      - [Libraries Used](#libraries-used)
+      - [SRC](#src)
+         - [LSTM.py](#lstmpy)
+         - [LSTMtraining.pynb](#lstmtrainingpynb)
+         - [lyric_generator.pynb](#lyric_generatorpynb)
    - [Usage](#usage)
    - [Final Results](#final-results)
       - [Metrics](#metrics)
@@ -48,9 +52,7 @@ This project aims to implement and experiment with Natural Language Processing (
    - Classify song lyrics by genre (e.g., rock, pop, hiphop).
 3. **Lyric Generation:**
    - Generate lyrics by genre (e.g., rock, pop, hiphop).
-4. **Model Comparison:**
-   - Evaluate the performance of the two NLP models (BERT, LSTM).
-   - Compare model accuracy and quality to prior works
+
 
 ## Project Goals
 
@@ -326,8 +328,88 @@ Checkpoints are stored in the .ipynb_checkpoints folder.
 # Lyric Generation
 
 ## Model Selection
+
+We chose to implement an LSTM model for the lyric generation task based on the promising results in Gill et al. (2020). LSTMs are relatively lightweight in terms of computation, making them suitable for training within our project’s timeframe. Initially, we planned to improve upon Gill et al.'s design by initializing the hidden state with a learned embedding from a fine-tuned BERT model. However, during experimentation, we found that this approach required significantly more computational resources than justified by the marginal improvements in output quality.
+
+Instead, we opted to initialize the hidden and cell states using the target genre embedding, expanded to the appropriate size. Preliminary testing indicated that this method improved model output noticeably compared to zero initialization.
+
+Aside from this change, our model remains largely similar to that of Gill et al. (2020). It uses a genre-embedded initial state, consists of 2 LSTM layers with a dropout rate of 0.3, and employs a teacher forcing ratio of 0.5. The output of the final linear layer is passed through a softmax to generate a probability distribution over the vocabulary. In the generation loop, we allow for temperature adjustment; lower temperatures reduce creativity and lead to repetitive output, while higher temperatures increase diversity at the cost of coherence. We use top-p (nucleus) sampling for token selection during generation.
+
+---
+
 ## Model Implementation
-## Usage 
+
+### Libraries Used
+
+- `torch`: Core PyTorch library
+- `torch.nn as nn`: Provides neural network layers and modules
+- `torch.nn.functional as F`: Functional interface (e.g., for softmax)
+- `torch.utils.data.Dataset`: For building custom datasets
+- `torch.utils.data.DataLoader`: For batching and shuffling data during training
+- `random`: Used in teacher forcing for randomly choosing between predicted and ground truth tokens
+- `nltk` (`from nltk.tokenize import word_tokenize`): Used for word-level tokenization during vocabulary creation
+- `collections.Counter`: Used to count word frequencies when building the vocabulary
+- `tqdm`: For training progress visualization with progress bars
+
+---
+
+## Source Code
+
+The implementation is organized into the following files:
+
+### `LSTM.py`
+
+#### Class `LyricsTokenizer`
+- `__init__`: Initializes vocabulary dictionaries, sets special tokens, and defines minimum word frequency and maximum sequence length
+- `build_vocab`: Tokenizes all lyrics using NLTK and creates `word2id` and `id2word` mappings
+- `tokenize`: Converts tokenized lyrics into lists of word IDs using the vocabulary
+- `vocab_size`: Returns the size of the vocabulary
+- `untokenize`: Not used in the current code, but can convert token ID sequences back to readable lyrics
+
+#### Class `LyricsGenreDataset`
+- `__init__`: Tokenizes lyrics and converts genres to numerical IDs
+- `__len__`: Returns the number of lyric samples
+- `__getitem__`: Retrieves a tokenized lyric sample and its corresponding genre ID
+
+#### Function `collate_fn`
+- Batches and stacks lyric tensors and genre IDs
+- Splits lyrics into input and target sequences for teacher forcing
+
+#### Class `LSTMLyrics_by_Genre`
+- Defines an LSTM decoder conditioned on genre embeddings
+- `forward`: Runs a forward pass with teacher forcing
+- `train_model`: Trains the model for one epoch using backpropagation and an optimizer (Adam with epsilon of 1e-3)
+- `generate_lyrics`: Generates lyrics step-by-step using the genre and a beginning-of-song <BOS> token
+
+---
+
+### `LSTMtraining.ipynb`
+
+- **Data Processing**: The dataset is augmented by extracting the first and last 100 words from each song. This increases dataset size while keeping sequence lengths manageable. Training uses data stored in `LSTM_data`.
+- **Tokenizer**: The tokenizer from `LSTM.py` builds a vocabulary of the most frequent words and tokenizes input lyrics with padding and truncation
+- **Dataset & Dataloader**: Lyrics and genre labels are wrapped in a PyTorch `Dataset` and loaded in batches using a `collate_fn`
+- **Model Architecture**: The LSTM takes tokenized lyrics and a genre embedding. It uses an embedding size of 256, hidden size of 256, genre embedding size of 32, two LSTM layers, and dropout of 0.3
+- **Training**: The model is trained using teacher forcing and cross-entropy loss. Best-performing weights (based on training loss) are saved. The training set includes ~10,000 songs across 5 genres, with a teacher forcing ratio of 0.5
+
+---
+
+### `lyric_generator.ipynb`
+
+- **Data Processing**: Follows the same tokenization and formatting steps as during training
+- **Generation**: Lyrics are generated by loading the trained LSTM model and using a `<BOS>` (beginning-of-song) token as input. Generation continues for up to 100 tokens (this can be changed to be more or less) or until an `<EOS>` token is produced. Output randomness is controlled by a temperature parameter (current results used a temperature of 1, less resulted in too much repitition, more resulted in a lack of creativity). Genre embeddings guide both style and vocabulary during generation. Top-p sampling is used for token selection
+- **Bulk Generation**: Includes functionality for generating 100 songs per genre and filtering results to include only ASCII characters. Outputs are saved to a CSV file (e.g., `rb_generated.csv`)
+
+---
+
+## Usage
+
+To use the notebooks:
+
+1. Download and install all required libraries
+2. Adjust file paths according to your environment and the dataset you're using
+3. Run the notebooks to preprocess the data, train the model, or generate lyrics
+4. Alternatively, use the pre-trained model stored in `LSTM_final.pth` to skip training and immediately begin generating lyrics
+
 ## Final Results
 ### Metrics
 
