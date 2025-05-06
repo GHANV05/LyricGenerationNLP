@@ -417,8 +417,6 @@ We implemented a comprehensive metrics suite to evaluate both the real lyrics (c
 
 The metrics implemented are inspired by Gill et al.’s 2020 research and include:
 
-- Average Line Length → Average number of words per line
-
 - Song Word Variation → Number of unique words divided by total words in a song
 
 - Genre Word Variation → Number of unique words across all songs of a genre
@@ -429,21 +427,15 @@ The metrics implemented are inspired by Gill et al.’s 2020 research and includ
 
 - Cosine Similarity → Quantitative similarity score between generated lyrics and real training lyrics using a bag-of-words vectorization
 
-These metrics are implemented in metrics.py and applied using ```metrics_tests.ipynb,``` where we visualize distributions and averages using ```matplotlib``` and ```seaborn```.
-
-Example Visualizations
-- Bar charts comparing average metric values by genre
-
-- Histograms of cosine similarity distributions between generated and real songs
-
-- Comparative tables showing top genres with highest or lowest metric scores
+These metrics are implemented in metrics.py and applied using ```metrics_tests.ipynb,``` where we visualize distributions and averages using ```matplotlib``` and ```seaborn```. The visualizations are saved in CSCI3832_FinalProject/SupplementaryMaterials/metrics_images
 
 The results provide a quantitative foundation to assess how closely generated lyrics match the stylistic and linguistic patterns of real-world lyrics.
 
 
-
 ### Human Evaluation
+
 ## Future Steps
+As the model currently stands, it is effectively a first verse lyric generator, and not a very good one. Steps that could be taken to improve and further experiment with this model would be to train it with more data for more epochs. This would result in general improved behavior. Another thing that would be interesting to explor would be to train the model on music from only one artist and then generate songs that mimic that artist. Lastly, to get a really good song, you would likely want a different model for each sections of a song (verse, chorus, bridge) that can take in the previous models work and add the next section to it. All of these would require more time and computational power, except perhaps training the model on one artists work - which may end up being a summer project. Overall, we are happy with the current results and excited to see where this could go further. 
  
 ## Acknowledgments
 
