@@ -26,6 +26,9 @@ This project aims to implement and experiment with Natural Language Processing (
 - [Getting Started](#getting-started)
 - [Feature Extraction](#feature-extraction)
 - [Text Classification](#text-classification)
+   - [About the Model](#about-the-model)
+   - [Data](#data)
+   - [Final Results for Bert](#final-results-for-bert)
 - [Lyric Generation](#lyric-generation)
    - [Model Selection](#model-selection)
    - [Model Implementation](#model-implementation)
@@ -296,7 +299,7 @@ Per batch evaluations are outputted into training_eval_data.csv file. We store t
 
 Checkpoints are stored in the .ipynb_checkpoints folder.
 
-## Final Results
+## Final Results for Bert
 - Top 14 Genres, Unlimited
   - Average Test Accuracy: 0.599
   - Average Test F-1 Score: 0.579
