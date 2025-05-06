@@ -323,7 +323,7 @@ Checkpoints are stored in the .ipynb_checkpoints folder.
   - Average Test F-1 Score: 0.480
   - This is our last, and smallest model. It has the smallest number of songs and genres to choose from (genres we have at least a couple hundred songs for each). This model continues to frequently misclassify rock as metal, but I'd be satisfied drawing a conclusion about the two genres from that, instead of a conclusion about our model.
 
-
+All of our results are available at https://drive.google.com/drive/folders/1g28x-4IAeSjNeTKNv3d_eMEw10Ggol1E?usp=sharing
 
 # Lyric Generation
 
