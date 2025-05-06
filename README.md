@@ -285,10 +285,18 @@ https://colab.research.google.com/drive/1YSSxpP3xkHEFEB76VOeBX_qoyj1Ly5Gm#scroll
 We ran this model using Python version 3.11.12 (default for Google Colab)
 
 ## Data
+We are only using INSERT NUMBER OF GENRES WE DECIDE ON HERE genres. We filtered out songs that had more than 100 unknown words in the nltk word corpus. We filtered these songs because we wanted only english songs, but were worried that some words in these songs could have typos or would not exist in the word corpus so we added a buffer to not filter out any songs that we didn't want to. For every song, there is a genre associated with it. For some of our data, songs had multiple genres so we chose to classify the song as the first genre before handing it to the model. The input to train the model must have two arrays, one being the songs and the other being the genre associated with each song. For example, song at index 2 in the songs array with correspond with the genre at index 2 in the genres array. For validation and testing, the output is the predicted label of a song.
 
+Per batch evaluations are outputted into training_eval_data.csv file. We store training loss, validation loss, validation accuracy, validation precision, validation recall, validation F1 score, training time, validation time, predicted labels, and true labels.
+
+Checkpoints are stored in the .ipynb_checkpoints folder.
 
 ## Final Results
+Accuracy:
 
+F1 score:
+
+Precision:
 
 # Lyric Generation
 
@@ -296,8 +304,6 @@ We ran this model using Python version 3.11.12 (default for Google Colab)
 ## Model Implementation
 ## Usage 
 ## Final Results
-
-
 ### Metrics
 
 We implemented a comprehensive metrics suite to evaluate both the real lyrics (collected from Spotify + Genius) and the generated lyrics from our models.
@@ -326,29 +332,6 @@ Example Visualizations
 - Comparative tables showing top genres with highest or lowest metric scores
 
 The results provide a quantitative foundation to assess how closely generated lyrics match the stylistic and linguistic patterns of real-world lyrics.
-
-### Scrapted Data Metrics
-
-![Scraped Spotify Data Metrics](SupplementaryMaterials/metrics_images/scraped_data_metrics.png)
-
-### Train Data Metrics
-
-![Training Data Metrics](SupplementaryMaterials/metrics_images/train_data_metrics.png)
-
-### Generated Data Metrics
-
-![Generated Data Metrics](SupplementaryMaterials/metrics_images/generated_data_metrics.png)
-
-### Cosine Similarity Distribution
-This graph shows the distribution of cosine similarity scores between generated and real song lyrics across genres.
-
-
-![Cosine Similarity Distribution](SupplementaryMaterials/metrics_images/generated_data_cosine_sim.png)
-
-### Cosine Similarity Bar Chart
-This bar plot shows the average cosine similarity scores between generated and real song lyrics across genres.
-
-![Cosine Similarity Barplot](SupplementaryMaterials/metrics_images/generated_data_cosine_sim_barplot.png)
 
 
 
