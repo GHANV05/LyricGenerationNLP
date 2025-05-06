@@ -252,7 +252,11 @@ We used the 12 layer uncased Bert model from huggingface.
       batch_size = 32
       learning_rate = 2e-5
       warmup_steps = 0
-      epochs = 10
+      epochs = 5
+      max_allowed_unknowns = 100
+      num_genres = 14
+      limit_rb_disco = True
+      limit_number = 600
 
       Versions of Libraries:
       spotipy: 2.23.0
@@ -279,7 +283,7 @@ We used the 12 layer uncased Bert model from huggingface.
 We used Google Colab as our coding enviornment. The only set up needed is having a Google account!
 
 Below is a link that goes to our shared file in Google Colab that produced the results
-https://colab.research.google.com/drive/1YSSxpP3xkHEFEB76VOeBX_qoyj1Ly5Gm#scrollTo=ZUkoeLBOlAf2
+[https://colab.research.google.com/drive/1YSSxpP3xkHEFEB76VOeBX_qoyj1Ly5Gm#scrollTo=ZUkoeLBOlAf2](https://colab.research.google.com/drive/19NjW9EvF9The_Skhi_ayVrWxzToWpfer?usp=sharing)
 
 We ran this model using Python version 3.11.12 (default for Google Colab)
 
