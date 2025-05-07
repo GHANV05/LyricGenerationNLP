@@ -214,9 +214,6 @@ project/
 ## Feature Extraction
 
 The collector extracts the following data for each track:
-## Feature Extraction
-
-The collector extracts the following data for each track:
 
 | Column Name | Description |
 |-------------|-------------|
