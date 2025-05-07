@@ -430,9 +430,10 @@ The metrics implemented are inspired by Gill et al.’s 2020 research and includ
   - Generated: We see very little repetition in country, more in hip-hop and pop, and the most in rock and R&B. Overall, the range is between .8 and 1.4. The small range of low repetition values can be explained by the small song length, and by the fact we trained the model on only the first and last 100 words of each song, thus missing the chorus in most songs, which would likely have more repetition. 
 
 - Cosine Similarity → Quantitative similarity score between generated lyrics and real training lyrics using a bag-of-words vectorization
+
 ![image](https://github.com/user-attachments/assets/a7beaeb7-ac26-4a07-851f-622692bae28a)
 
-Overall, we see the greatest cosine similarity in the country genre, and the lowest in rock. The other genres all have similar differences. This alignes with our other metrics of evaluation. 
+Overall, we see the greatest cosine similarity in the country genre, and the lowest in rock. The other genres all have similar variance. This alignes with our other metrics of evaluation. 
 
 These metrics are implemented in metrics.py and applied using ```metrics_tests.ipynb,``` where we visualize distributions and averages using ```matplotlib``` and ```seaborn```. The visualizations are saved in CSCI3832_FinalProject/SupplementaryMaterials/metrics_images
 
@@ -440,7 +441,11 @@ The results provide a quantitative foundation to assess how closely generated ly
 
 
 ### Human Evaluation
+Ten human reviewers evaluated a random sample of the generated lyrics, 2 from each genre, 10 songs total. They were prompted with three questions: first, to guess the genre, second, to rate the creativity of the lyrics on a scale of 10 stars, and third, to rate the coherence of the lyrics on a scale of 10 stars. Coherence was defined for them as “how logically and semantically consistent the lines of a song are with each other in regard to thematic consistency, logical flow, grammatical and syntactical structure.” Creativity was defined for them as “how original, imaginative, and emotionally or intellectually engaging the lyrics are.”
 
+![human_eval](https://github.com/user-attachments/assets/988cb43a-d845-4692-95f1-4b1a662a92e2)
+
+Overall, we see the highest accuracy in hip-hop, country, and R&B. This makes sense, as hip-hop and country both contain common themes and vocabulary specific to them while rock and pop are very general. In terms of creativity, rock, pop, and hip-hop are all rated the highest, while country and R&B are rated very low. For coherence, all the genres are rated around 3.5-4 excepting hip-hop, which is slightly lower. Regardless of these trends, all the ratings are below 5, which suggests that the model still has a long way to go, and reinforces the value of having human evaluators. 
 
 ## Future Steps
 As the model currently stands, it is effectively a first verse lyric generator, and not a very good one. Steps that could be taken to improve and further experiment with this model would be to train it with more data for more epochs. This would result in general improved behavior. Another thing that would be interesting to explor would be to train the model on music from only one artist and then generate songs that mimic that artist. Lastly, to get a really good song, you would likely want a different model for each sections of a song (verse, chorus, bridge) that can take in the previous models work and add the next section to it. All of these would require more time and computational power, except perhaps training the model on one artists work - which may end up being a summer project. Overall, we are happy with the current results and excited to see where this could go further. 
