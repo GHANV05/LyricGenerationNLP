@@ -417,15 +417,22 @@ We implemented a comprehensive metrics suite to evaluate both the real lyrics (c
 
 The metrics implemented are inspired by Gill et al.’s 2020 research and include:
 
-- Song Word Variation → Number of unique words divided by total words in a song
-
-- Genre Word Variation → Number of unique words across all songs of a genre
+- Song Word Variation → Number of unique words divided by total words in a song across all songs of a genre
+  - Dataset: We see the most variation in country, R&B, and hip-hop. But overall, the variance across all the genres is not vastly different with the lowest being rock at .31 and the highest being hip-hop at 0.44.
+  - Generated: We see much less difference between genres, and a much higher variation in general, with all the genres hovering around 0.7. This is likely due to the smaller data set, less than 500 songs with 100 words each.
 
 - I vs. You Point-of-View → Difference between the count of lines starting with “I” vs. “You”
+  - Dataset: We see pretty consistent I vs You across all genres except hip-hop, which is much higher. 
+  - Generated: Because the model doesn’t generate endlines, we cannot count the number of lines starting with I vs you, can resorted to counting the overall use of I and you. We see the highest I usage in hip-hop, which is consistent with the input data. On the other hand, we see a huge ‘you’ usage in rock and pop that may not be in the dataset or may not be line starting ‘you’s.
 
 - Word Repetition Count → Number of immediate repeated words in a song (e.g., “good good”)
+  - Dataset: There is very little repetition in country, a moderate amount in pop and R&B, and a more than moderate amount in hip-hop and rock. These values range from 2 to 16. 
+  - Generated: We see very little repetition in country, more in hip-hop and pop, and the most in rock and R&B. Overall, the range is between .8 and 1.4. The small range of low repetition values can be explained by the small song length, and by the fact we trained the model on only the first and last 100 words of each song, thus missing the chorus in most songs, which would likely have more repetition. 
 
 - Cosine Similarity → Quantitative similarity score between generated lyrics and real training lyrics using a bag-of-words vectorization
+![image](https://github.com/user-attachments/assets/a7beaeb7-ac26-4a07-851f-622692bae28a)
+
+Overall, we see the greatest cosine similarity in the country genre, and the lowest in rock. The other genres all have similar differences. This alignes with our other metrics of evaluation. 
 
 These metrics are implemented in metrics.py and applied using ```metrics_tests.ipynb,``` where we visualize distributions and averages using ```matplotlib``` and ```seaborn```. The visualizations are saved in CSCI3832_FinalProject/SupplementaryMaterials/metrics_images
 
@@ -433,6 +440,7 @@ The results provide a quantitative foundation to assess how closely generated ly
 
 
 ### Human Evaluation
+
 
 ## Future Steps
 As the model currently stands, it is effectively a first verse lyric generator, and not a very good one. Steps that could be taken to improve and further experiment with this model would be to train it with more data for more epochs. This would result in general improved behavior. Another thing that would be interesting to explor would be to train the model on music from only one artist and then generate songs that mimic that artist. Lastly, to get a really good song, you would likely want a different model for each sections of a song (verse, chorus, bridge) that can take in the previous models work and add the next section to it. All of these would require more time and computational power, except perhaps training the model on one artists work - which may end up being a summer project. Overall, we are happy with the current results and excited to see where this could go further. 
