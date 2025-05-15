@@ -1,4 +1,4 @@
-# CSCI3832_FinalProject
+# CSCI3832 - Natural Language Processing - FinalProject
 
 # NLP-Based Analysis and Generation of Song Lyrics Using Spotify Data
 
