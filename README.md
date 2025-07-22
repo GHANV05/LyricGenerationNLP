@@ -1,5 +1,7 @@
 # CSCI3832 - Natural Language Processing - FinalProject
 
+## Note: This repository was migrated from my former academic GitHub account @gaha4495
+
 # NLP-Based Analysis and Generation of Song Lyrics Using Spotify Data
 
 ## Project Overview
